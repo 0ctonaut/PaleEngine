@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # --- 3rd party libraries ---
 #add_subdirectory(3dparty/GLFW)
 add_subdirectory(3dparty/glad)
+add_subdirectory(3dparty/glm)
 
 # --- Ours ---
 add_subdirectory(PaleRenderer)

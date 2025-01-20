@@ -1,0 +1,3 @@
+[submodule "3dparty/glm"]
+	path = 3dparty/glm
+	url = git@github.com:g-truc/glm.git
