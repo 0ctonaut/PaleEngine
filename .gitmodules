@@ -1,3 +1,10 @@
 [submodule "3dparty/glm"]
 	path = 3dparty/glm
 	url = git@github.com:g-truc/glm.git
+[submodule "3dparty/glfw"]
+	path = 3dparty/glfw
+	url = git@github.com:glfw/glfw.git
+[submodule "3dparty/imgui"]
+	path = 3dparty/imgui
+	url = git@github.com:ocornut/imgui.git
+	branch = docking

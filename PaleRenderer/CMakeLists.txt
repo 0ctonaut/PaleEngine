@@ -21,6 +21,7 @@ target_include_directories(PaleRenderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # --- 3dparty ---
 target_link_libraries(PaleRenderer PRIVATE glad)
+target_link_libraries(PaleRenderer PRIVATE glfw)
 target_link_libraries(PaleRenderer PRIVATE glm)
 
 # --- macros ---
