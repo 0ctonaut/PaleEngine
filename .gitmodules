@@ -8,3 +8,6 @@
 	path = 3dparty/imgui
 	url = git@github.com:ocornut/imgui.git
 	branch = docking
+[submodule "3dparty/spdlog"]
+	path = 3dparty/spdlog
+	url = git@github.com:gabime/spdlog.git
