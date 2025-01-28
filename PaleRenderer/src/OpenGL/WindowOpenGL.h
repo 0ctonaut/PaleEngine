@@ -13,6 +13,8 @@ namespace PaleRenderer
 		~CWindowOpenGL();
 
 		inline GLFWwindow* fetchWindowPtr() const { return m_pWindow; }
+		void OnResize(unsigned int vWidth, unsigned int vHeight) const;
+		void renameWindow(std::string vName) const;
 
 	private:
 		GLFWwindow* m_pWindow;

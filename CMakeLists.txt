@@ -18,6 +18,10 @@ add_subdirectory(3dparty/imgui)
 set(SPDLOG_BUILD_SHARED ON CACHE BOOL "Build shared libraries" FORCE)
 add_subdirectory(3dparty/spdlog)
 
+set_property(TARGET 
+    glad glfw glm imgui spdlog 
+    PROPERTY FOLDER "3dparty")
+
 # --- Ours ---
 add_subdirectory(PaleRenderer)
 add_subdirectory(PaleUI)

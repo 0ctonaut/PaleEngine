@@ -28,4 +28,13 @@ namespace PaleRenderer
     {
         glfwDestroyWindow(m_pWindow);
     }
+
+    void CWindowOpenGL::OnResize(unsigned int vWidth, unsigned int vHeight) const
+    {
+        glViewport(0, 0, vWidth, vHeight);
+    }
+    void CWindowOpenGL::renameWindow(std::string vName) const
+    {
+        glfwSetWindowTitle(m_pWindow, vName.c_str());
+    }
 }

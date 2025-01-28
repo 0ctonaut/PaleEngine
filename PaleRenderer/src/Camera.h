@@ -17,7 +17,9 @@ namespace PaleRenderer
         FORWARD,
         BACKWARD,
         LEFT,
-        RIGHT
+        RIGHT,
+        UP,
+        DOWN
     };
 
     class PALE_API CCamera
@@ -65,12 +67,16 @@ namespace PaleRenderer
             float velocity = MovementSpeed * deltaTime;
             if (direction == ECameraMove::FORWARD)
                 Position += Front * velocity;
-            if (direction == ECameraMove::BACKWARD)
+            else if (direction == ECameraMove::BACKWARD)
                 Position -= Front * velocity;
-            if (direction == ECameraMove::LEFT)
+            else if (direction == ECameraMove::LEFT)
                 Position -= Right * velocity;
-            if (direction == ECameraMove::RIGHT)
+            else if (direction == ECameraMove::RIGHT)
                 Position += Right * velocity;
+            else if (direction == ECameraMove::DOWN)
+                Position -= Up * velocity;
+            else if (direction == ECameraMove::UP)
+                Position += Up * velocity;
         }
 
         // processes input received from a mouse input system. Expects the offset value in both the x and y direction.

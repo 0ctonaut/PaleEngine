@@ -7,6 +7,7 @@
 // --- OpenGL ---
 #include "OpenGL/TextureOpenGL.h"
 #include "OpenGL/WindowOpenGL.h"
+#include "OpenGL/FrameBufferOpenGL.h"
 // ------
 
 #include <glad/glad.h>
