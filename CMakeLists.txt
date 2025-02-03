@@ -4,24 +4,27 @@ project(PaleEngine)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
-set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
-
 # --- 3rd party libraries ---
-add_subdirectory(3dparty/glad)
-set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries" FORCE)
-add_subdirectory(3dparty/glfw)
-set(GLM_BUILD_LIBRARY OFF CACHE BOOL "Build shared libraries" FORCE)
-#set(GLM_BUILD_TESTS OFF CACHE BOOL "Build shared libraries" FORCE)
-add_subdirectory(3dparty/glm)
-add_subdirectory(3dparty/imgui)
-set(SPDLOG_BUILD_SHARED ON CACHE BOOL "Build shared libraries" FORCE)
-add_subdirectory(3dparty/spdlog)
+set(BUILD_SHARED_LIBS ON CACHE BOOL "glad Build shared libraries" FORCE)
+set(GLM_BUILD_LIBRARY OFF CACHE BOOL "glfw Build shared libraries" FORCE)
+set(SPDLOG_BUILD_SHARED ON CACHE BOOL "spdlog Build shared libraries" FORCE)
 
-set_property(TARGET 
-    glad glfw glm imgui spdlog 
-    PROPERTY FOLDER "3dparty")
+foreach(lib IN ITEMS glad glfw glm imgui spdlog assimp)
+    add_subdirectory(3rdparty/${lib})
+    set_property(TARGET ${lib} PROPERTY FOLDER "3rdparty")
+    set_target_properties(${lib} PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    )
+endforeach()
 
 # --- Ours ---
-add_subdirectory(PaleRenderer)
-add_subdirectory(PaleUI)
+foreach(lib IN ITEMS PaleRenderer PaleUI)
+    add_subdirectory(${lib})
+    set_target_properties(${lib} PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
+    )
+endforeach()

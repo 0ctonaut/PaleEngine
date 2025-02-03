@@ -1,8 +1,9 @@
-#include "Pass.h"
+#include "stdafx.h"
+#include "PassOpenGL.h"
 
 namespace PaleRenderer
 {
-	Pass::Pass(const char* vertexPath, const char* fragmentPath)
+	CPassOpenGL::CPassOpenGL(const char* vertexPath, const char* fragmentPath)
     {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
@@ -58,7 +59,7 @@ namespace PaleRenderer
 
     }
 
-    void Pass::__checkCompileErrors(GLuint shader, std::string type)
+    void CPassOpenGL::__checkCompileErrors(GLuint shader, std::string type)
     {
         GLint success;
         GLchar infoLog[1024];

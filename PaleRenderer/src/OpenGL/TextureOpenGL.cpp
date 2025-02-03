@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "TextureOpenGL.h"
 // ------
 #include <iostream>
@@ -10,7 +11,23 @@
 
 namespace PaleRenderer
 {
+    CTextureOpenGL::CTextureOpenGL()
+    {
+        __initTex();
+    }
+
     CTextureOpenGL::CTextureOpenGL(const std::string& vPath)
+    {
+        __initTex();
+        __loadImage(vPath);
+    }
+
+    CTextureOpenGL::CTextureOpenGL(const std::filesystem::path& vPath)
+    {
+        __initTex();
+        __loadImage(vPath.string());
+    }
+    void CTextureOpenGL::__initTex()
     {
         glGenTextures(1, &m_TexID);
         glBindTexture(GL_TEXTURE_2D, m_TexID);
@@ -20,6 +37,9 @@ namespace PaleRenderer
         // set texture filtering parameters
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    void CTextureOpenGL::__loadImage(const std::string& vPath)
+    {
         // load image, create texture and generate mipmaps
         int width, height, nrChannels;
         stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.

@@ -16,7 +16,7 @@ add_executable(PaleUI ${SOURCES} ${HEADERS}
     ${IMAGE_PNG} ${IMAGE_JPG}
 )
 
-# --- 3dparty ---
+# --- 3rdparty ---
 target_link_libraries(PaleUI PRIVATE imgui)
 
 # ---  ---

@@ -1,5 +1,5 @@
-#include "OpenGL/FrameBufferOpenGL.h"
 #include "stdafx.h"
+#include "OpenGL/FrameBufferOpenGL.h"
 
 namespace PaleRenderer
 {

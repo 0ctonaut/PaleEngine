@@ -1,10 +1,11 @@
+#pragma once
 //
 #include "Core/PaleRendererExport.h"
-#include "Pass.h"
 #include "Camera.h"
 #include "Core/PathManager.h"
 
 // --- OpenGL ---
+#include "OpenGL/PassOpenGL.h"
 #include "OpenGL/TextureOpenGL.h"
 #include "OpenGL/WindowOpenGL.h"
 #include "OpenGL/FrameBufferOpenGL.h"

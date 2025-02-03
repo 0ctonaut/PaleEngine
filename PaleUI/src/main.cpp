@@ -29,13 +29,14 @@ PaleRenderer::CCamera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 float lastX = 1920 / 2.0f;
 float lastY = 1080 / 2.0f;
 bool firstMouse = true;
+bool bMouseRightButtonPress = false;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
  
-void ShowExampleAppDockSpace(bool* p_open)
+void useDockSpace(bool* p_open)
 {
     // READ THIS !!!
     // TL;DR; this demo is more complicated than what most users you would normally use.
@@ -174,58 +175,36 @@ int main(int, char**)
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     glfwSetFramebufferSizeCallback(pWindow, framebuffer_size_callback);
-    //glfwSetCursorPosCallback(pWindow, mouse_callback);
+    glfwSetCursorPosCallback(pWindow, mouse_callback);
     glfwSetScrollCallback(pWindow, scroll_callback);
 
 	std::filesystem::path currentPath = std::filesystem::current_path();
-	PaleRenderer::Pass pass1((CPathManager::getInstance().getUIRoot() / "Assets/Shaders/camera.vert").string().c_str(),
+	PaleRenderer::CPassOpenGL pass1((CPathManager::getInstance().getUIRoot() / "Assets/Shaders/camera.vert").string().c_str(),
 		(CPathManager::getInstance().getUIRoot() / "Assets/Shaders/camera.frag").string().c_str());
 	float vertices[] = {
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
 		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
+        
 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
 		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
 		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
+
+	unsigned int indices[] = {
+		 0, 1, 2, 2, 3, 0,
+		 4, 5, 6, 6, 7, 4,
+         7, 3, 0, 0, 4, 7,
+         6, 2, 1, 1, 5, 6,
+         0, 1, 5, 5, 4, 0,
+         3, 2, 6, 6, 7, 3
+	};
+
 	// world space positions of our cubes
 	glm::vec3 cubePositions[] = {
-		glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(0.0f,  0.0f,  0.0f),
 		glm::vec3(2.0f,  5.0f, -15.0f),
 		glm::vec3(-1.5f, -2.2f, -2.5f),
 		glm::vec3(-3.8f, -2.0f, -12.3f),
@@ -236,14 +215,18 @@ int main(int, char**)
 		glm::vec3(1.5f,  0.2f, -1.5f),
 		glm::vec3(-1.3f,  1.0f, -1.5f)
 	};
-	unsigned int VBO, VAO;
+	unsigned int VBO, VAO, EBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
@@ -254,8 +237,8 @@ int main(int, char**)
 
 	// load and create a texture 
 	// -------------------------
-	PaleRenderer::CTextureOpenGL texture1((CPathManager::getInstance().getUIRoot() / "Assets/Images/wall.jpg").string().c_str());
-	PaleRenderer::CTextureOpenGL texture2((CPathManager::getInstance().getUIRoot() / "Assets/Images/awesomeface.png").string().c_str());
+	PaleRenderer::CTextureOpenGL texture1(CPathManager::getInstance().getUIRoot() / "Assets/Images/wall.jpg");
+	PaleRenderer::CTextureOpenGL texture2(CPathManager::getInstance().getUIRoot() / "Assets/Images/awesomeface.png");
 
 	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
 	// -------------------------------------------------------------------------------------------
@@ -277,7 +260,7 @@ int main(int, char**)
         }
 
         bool showDockSpace = true;
-        ShowExampleAppDockSpace(&showDockSpace);
+        useDockSpace(&showDockSpace);
 
         bool showdemo = true;
         ImGui::ShowDemoWindow(&showdemo);
@@ -290,12 +273,12 @@ int main(int, char**)
             ImGui::Begin("Scene");
             ViewportSize = ImGui::GetContentRegionAvail();
             frameBuffer.OnResize(ViewportSize.x, ViewportSize.y);
-            ImGui::Image(frameBuffer.m_ColorBufferID, ViewportSize);
+            ImGui::Image(frameBuffer.m_ColorBufferID, ViewportSize, { 0, 1 }, {1, 0});
             ImGui::End();
         }
         {
             ImGui::Begin("Depth");
-            ImGui::Image(frameBuffer.m_DepthBufferID, ViewportSize);
+            ImGui::Image(frameBuffer.m_DepthBufferID, ViewportSize, { 0, 1 }, { 1, 0 });
             ImGui::End();
         }
 
@@ -339,7 +322,7 @@ int main(int, char**)
             model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
             pass1.setMat4("model", model);
 
-            glDrawArrays(GL_TRIANGLES, 0, 36);
+            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -369,20 +352,25 @@ int main(int, char**)
 
 void processInput(GLFWwindow* window)
 {
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(PaleRenderer::ECameraMove::FORWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(PaleRenderer::ECameraMove::BACKWARD, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(PaleRenderer::ECameraMove::LEFT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(PaleRenderer::ECameraMove::RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-        camera.ProcessKeyboard(PaleRenderer::ECameraMove::UP, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        camera.ProcessKeyboard(PaleRenderer::ECameraMove::DOWN, deltaTime);
+    bMouseRightButtonPress = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
+    
+    if (bMouseRightButtonPress)
+    {
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+            glfwSetWindowShouldClose(window, true);
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            camera.ProcessKeyboard(PaleRenderer::ECameraMove::FORWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            camera.ProcessKeyboard(PaleRenderer::ECameraMove::BACKWARD, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            camera.ProcessKeyboard(PaleRenderer::ECameraMove::LEFT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            camera.ProcessKeyboard(PaleRenderer::ECameraMove::RIGHT, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+            camera.ProcessKeyboard(PaleRenderer::ECameraMove::UP, deltaTime);
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+            camera.ProcessKeyboard(PaleRenderer::ECameraMove::DOWN, deltaTime);
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -397,6 +385,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 // -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
+    ImGui_ImplGlfw_CursorPosCallback(window, xposIn, yposIn);
     float xpos = static_cast<float>(xposIn);
     float ypos = static_cast<float>(yposIn);
 
@@ -413,7 +402,8 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     lastX = xpos;
     lastY = ypos;
 
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    if (bMouseRightButtonPress)
+        camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called

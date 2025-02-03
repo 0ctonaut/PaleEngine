@@ -1,3 +1,4 @@
+#pragma once
 #include "Core/PaleRendererExport.h"
 namespace PaleRenderer
 {

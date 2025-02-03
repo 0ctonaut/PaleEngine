@@ -11,11 +11,11 @@
 
 namespace PaleRenderer
 {
-    class PALE_API Pass
+    class PALE_API CPassOpenGL
     {
     public:
         unsigned int ID;
-        Pass(const char* vertexPath, const char* fragmentPath);
+        CPassOpenGL(const char* vertexPath, const char* fragmentPath);
         void use() const
         {
             glUseProgram(ID);

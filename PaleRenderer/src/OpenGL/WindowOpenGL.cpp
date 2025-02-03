@@ -1,6 +1,5 @@
-#pragma once
-#include "WindowOpenGL.h"
 #include "stdafx.h"
+#include "WindowOpenGL.h"
 
 namespace PaleRenderer
 {
