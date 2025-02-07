@@ -59,6 +59,11 @@ namespace PaleRenderer
 
     }
 
+    CPassOpenGL::CPassOpenGL(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) :
+        CPassOpenGL(vertexPath.string().c_str(), fragmentPath.string().c_str())
+    {
+    }
+
     void CPassOpenGL::__checkCompileErrors(GLuint shader, std::string type)
     {
         GLint success;

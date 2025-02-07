@@ -1,3 +1,6 @@
+// std
+#include <filesystem>
+
 // --- 3rdparty
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

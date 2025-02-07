@@ -3,6 +3,7 @@
 #include "Core/PaleRendererExport.h"
 #include "Camera.h"
 #include "Core/PathManager.h"
+#include "Model.h"
 
 // --- OpenGL ---
 #include "OpenGL/PassOpenGL.h"

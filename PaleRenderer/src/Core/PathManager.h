@@ -6,22 +6,27 @@ class CPathManager : public Singleton<CPathManager>
 	friend class Singleton<CPathManager>;
 public:
 #ifdef RENDERER_ROOT
-	std::filesystem::path getRendererRoot()
+	std::filesystem::path getRendererRoot() const
 	{
 		return m_RendererRoot;
 	}
 #endif
 #ifdef UI_ROOT
-	std::filesystem::path getUIRoot()
+	std::filesystem::path getUIRoot() const
 	{
 		return m_UIRoot;
 	}
 #endif
+	std::filesystem::path getRootDir() const
+	{
+		return m_Root;
+	}
 
 private:
 
 	CPathManager()
 	{
+		m_Root = std::filesystem::path(ROOT_DIR);
 #ifdef RENDERER_ROOT
 		m_RendererRoot = std::filesystem::path(RENDERER_ROOT);
 #endif
@@ -36,5 +41,7 @@ private:
 #ifdef UI_ROOT
 	std::filesystem::path m_UIRoot;
 #endif
+	std::filesystem::path m_Root;
+
 };
 

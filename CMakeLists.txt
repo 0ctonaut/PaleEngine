@@ -27,4 +27,8 @@ foreach(lib IN ITEMS PaleRenderer PaleUI)
         LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}"
     )
+
+    set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+    string(REPLACE "\\" "/" CURRENT_DIR_UNIX_STYLE ${ROOT_DIR})
+    target_compile_definitions(${lib} PRIVATE ROOT_DIR="${ROOT_DIR}")
 endforeach()

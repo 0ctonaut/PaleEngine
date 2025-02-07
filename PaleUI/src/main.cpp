@@ -179,72 +179,12 @@ int main(int, char**)
     glfwSetScrollCallback(pWindow, scroll_callback);
 
 	std::filesystem::path currentPath = std::filesystem::current_path();
-	PaleRenderer::CPassOpenGL pass1((CPathManager::getInstance().getUIRoot() / "Assets/Shaders/camera.vert").string().c_str(),
-		(CPathManager::getInstance().getUIRoot() / "Assets/Shaders/camera.frag").string().c_str());
-	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-	};
-
-	unsigned int indices[] = {
-		 0, 1, 2, 2, 3, 0,
-		 4, 5, 6, 6, 7, 4,
-         7, 3, 0, 0, 4, 7,
-         6, 2, 1, 1, 5, 6,
-         0, 1, 5, 5, 4, 0,
-         3, 2, 6, 6, 7, 3
-	};
-
-	// world space positions of our cubes
-	glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f,  0.0f,  0.0f),
-		glm::vec3(2.0f,  5.0f, -15.0f),
-		glm::vec3(-1.5f, -2.2f, -2.5f),
-		glm::vec3(-3.8f, -2.0f, -12.3f),
-		glm::vec3(2.4f, -0.4f, -3.5f),
-		glm::vec3(-1.7f,  3.0f, -7.5f),
-		glm::vec3(1.3f, -2.0f, -2.5f),
-		glm::vec3(1.5f,  2.0f, -2.5f),
-		glm::vec3(1.5f,  0.2f, -1.5f),
-		glm::vec3(-1.3f,  1.0f, -1.5f)
-	};
-	unsigned int VBO, VAO, EBO;
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-	glBindVertexArray(VAO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// texture coord attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	// load and create a texture 
-	// -------------------------
-	PaleRenderer::CTextureOpenGL texture1(CPathManager::getInstance().getUIRoot() / "Assets/Images/wall.jpg");
-	PaleRenderer::CTextureOpenGL texture2(CPathManager::getInstance().getUIRoot() / "Assets/Images/awesomeface.png");
-
-	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
-	// -------------------------------------------------------------------------------------------
-	pass1.use();
-	pass1.setInt("texture1", 0);
-	pass1.setInt("texture2", 1);
+	PaleRenderer::CPassOpenGL pass1(
+        CPathManager::getInstance().getRootDir() / "Assets/Shaders/model.vert",
+		CPathManager::getInstance().getRootDir() / "Assets/Shaders/model.frag");
+	
+    PaleRenderer::CModel ourModel(
+        CPathManager::getInstance().getRootDir() / "Assets/Models/backpack/backpack.obj");
 
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     PaleRenderer::CFrameBufferOpenGL frameBuffer(1920, 1080);
@@ -294,12 +234,6 @@ int main(int, char**)
         glClearColor(clear_color.x* clear_color.w, clear_color.y* clear_color.w, clear_color.z* clear_color.w, clear_color.w);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // bind textures on corresponding texture units
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1.getTexID());
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2.getTexID());
-
         // activate shader
         pass1.use();
 
@@ -311,19 +245,13 @@ int main(int, char**)
         glm::mat4 view = camera.GetViewMatrix();
         pass1.setMat4("view", view);
 
-        // render boxes
-        glBindVertexArray(VAO);
-        for (unsigned int i = 0; i < 10; i++)
-        {
-            // calculate the model matrix for each object and pass it to shader before drawing
-            glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-            model = glm::translate(model, cubePositions[i]);
-            float angle = 20.0f * i;
-            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-            pass1.setMat4("model", model);
-
-            glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-        }
+        // calculate the model matrix for each object and pass it to shader before drawing
+        glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+        model = glm::translate(model, glm::vec3(1.0, 1.0, 1.0));
+        model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.3f, 0.5f));
+        pass1.setMat4("model", model);
+        
+        ourModel.draw(pass1);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         ImGui::Render();

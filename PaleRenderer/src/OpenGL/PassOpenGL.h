@@ -16,6 +16,7 @@ namespace PaleRenderer
     public:
         unsigned int ID;
         CPassOpenGL(const char* vertexPath, const char* fragmentPath);
+        CPassOpenGL(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath);
         void use() const
         {
             glUseProgram(ID);

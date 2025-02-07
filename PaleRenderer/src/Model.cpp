@@ -3,6 +3,10 @@
 
 namespace PaleRenderer
 {
+	CModel::CModel(std::filesystem::path vPath)
+	{
+		load(vPath);
+	}
 	bool CModel::load(std::filesystem::path vPath)
 	{
 		Assimp::Importer importer;
@@ -23,6 +27,13 @@ namespace PaleRenderer
 		}
 		return true;
 	}
+
+	void CModel::draw(CPassOpenGL& vPass)
+	{
+		for (unsigned int i = 0; i < m_Meshes.size(); i++)
+			m_Meshes[i].draw(vPass);
+	}
+
 	bool CModel::__processNode(aiNode* node, const aiScene* scene)
 	{
 		// process all the node's meshes (if any)
@@ -97,9 +108,19 @@ namespace PaleRenderer
 		{
 			aiString str;
 			mat->GetTexture(aiType, i, &str);
-			CTextureOpenGL texture(m_ModelPath / str.C_Str());
-			texture.Type = type;
-			textures.push_back(texture);
+			std::filesystem::path path = m_ModelPath / str.C_Str();
+
+			if (m_TexCache.contains(path))
+			{
+				textures.push_back(m_TexCache[path]);
+			}
+			else
+			{
+				CTextureOpenGL texture(path);
+				texture.Type = type;
+				textures.push_back(texture);
+				m_TexCache[path] = texture;
+			}
 		}
 		return textures;
 	}
