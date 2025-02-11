@@ -1,8 +1,9 @@
 #pragma once
 //
 #include "PaleRenderer/Core/Camera.h"
-#include "Core/PathManager.h"
+#include "PaleRenderer/Core/PathManager.h"
 #include "PaleRenderer/Core/Model.h"
+#include "PaleRenderer/Core/Application.h"
 
 // --- ECS ---
 #include "ECS/Scene.h"

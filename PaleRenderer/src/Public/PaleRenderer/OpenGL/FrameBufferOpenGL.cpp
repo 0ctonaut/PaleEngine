@@ -28,8 +28,14 @@ namespace PaleRdr
         glBindFramebuffer(GL_FRAMEBUFFER, m_ID);
     }
 
+    void CFrameBufferOpenGL::unbind()
+    {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+
     void CFrameBufferOpenGL::OnResize(unsigned int vWidth, unsigned int vHeight)
     {
+        bind();
         __resetColorBuffer(vWidth, vHeight);
         __resetDepthBuffer(vWidth, vHeight);
     }

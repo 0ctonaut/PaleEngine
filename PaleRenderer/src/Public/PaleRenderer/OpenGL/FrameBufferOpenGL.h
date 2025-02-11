@@ -10,14 +10,17 @@ namespace PaleRdr
 		CFrameBufferOpenGL(const CFrameBufferOpenGL&) = delete;
 
 		void bind();
+		void unbind();
 		void OnResize(unsigned int vWidth, unsigned int vHeight);
+		unsigned int getColorBufferID() const { return m_ColorBufferID;	}
+		unsigned int getDepthBufferID() const { return m_DepthBufferID; }
 
-		unsigned int m_ColorBufferID;
-		unsigned int m_DepthBufferID;
 	private:
 		void __resetColorBuffer(unsigned int vWidth, unsigned int vHeight);
 		void __resetDepthBuffer(unsigned int vWidth, unsigned int vHeight);
 
 		unsigned int m_ID;
+		unsigned int m_ColorBufferID;
+		unsigned int m_DepthBufferID;
 	};
 }

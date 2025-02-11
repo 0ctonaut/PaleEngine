@@ -13,6 +13,7 @@ namespace PaleUI
         ~CHierarchyPanel();
 
         void OnUIRender(std::unordered_map<std::string, entt::entity>& vNames);
+    public:
         Event<entt::entity> EventSingleSelection;
     private:
     };
