@@ -21,5 +21,9 @@ namespace PaleRdr
 	void CApplication::OnRender(float vFrameRate)
 	{
 		m_pWindow->renameWindow(std::format("{} {:.2f} ms/frame ({:.2f} FPS)", m_Title, 1000.0f / vFrameRate, vFrameRate));
+		
+		float currentFrame = static_cast<float>(glfwGetTime());
+		m_DeltaTime = currentFrame - m_LastTime;
+		m_LastTime = currentFrame;
 	}
 }

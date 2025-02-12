@@ -26,6 +26,7 @@ namespace PaleRdr
     CWindowOpenGL::~CWindowOpenGL()
     {
         glfwDestroyWindow(m_pWindow);
+        glfwTerminate();
     }
 
     void CWindowOpenGL::OnResize(unsigned int vWidth, unsigned int vHeight) const

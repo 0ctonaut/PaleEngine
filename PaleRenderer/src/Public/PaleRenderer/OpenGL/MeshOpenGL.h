@@ -28,6 +28,11 @@ namespace PaleRdr
 			std::vector<CTextureOpenGL>&& vTextures,
 			std::vector<unsigned int>&& vIndices
 		);
+		//CMeshOpenGL(const CMeshOpenGL&) = delete;
+		//CMeshOpenGL& operator=(const CMeshOpenGL&) = delete;
+
+		//CMeshOpenGL(CMeshOpenGL&& vOther);
+		~CMeshOpenGL();
 
 		void draw(const CPassOpenGL& vPass);
 

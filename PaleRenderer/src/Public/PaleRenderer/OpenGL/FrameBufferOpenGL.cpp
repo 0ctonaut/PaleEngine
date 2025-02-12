@@ -20,7 +20,9 @@ namespace PaleRdr
 	}
 	CFrameBufferOpenGL::~CFrameBufferOpenGL()
 	{
-
+        //glDeleteFramebuffers(1, &m_ID);
+        //glDeleteTextures(1, &m_ColorBufferID);
+        //glDeleteTextures(1, &m_DepthBufferID);
 	}
 
     void CFrameBufferOpenGL::bind()

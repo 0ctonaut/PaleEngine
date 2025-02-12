@@ -8,4 +8,9 @@ namespace PaleRdr
 	{
 
 	}
+	void CCamera::OnViewportResize(unsigned int vWidth, unsigned int vHeight)
+	{
+		m_ViewportWidth = vWidth;
+		m_ViewportHeight = vHeight;
+	}
 }

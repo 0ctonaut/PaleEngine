@@ -43,6 +43,8 @@ namespace PaleRdr
         {
             m_FarPlane = 100.0f;
             m_NearPlane = 0.1f;
+            m_ViewportWidth = 1920;
+            m_ViewportHeight = 1080;
             Position = position;
             WorldUp = up;
             Yaw = yaw;
@@ -60,11 +62,12 @@ namespace PaleRdr
         }
 
         void OnRender();
+        void OnViewportResize(unsigned int vWidth, unsigned int vHeight);
 
         glm::mat4 getProjectionMatrix()
         {
             return glm::perspective(glm::radians(Zoom),
-                1920 * 1.0f / 1080,
+                m_ViewportWidth / m_ViewportHeight,
                 m_NearPlane, m_FarPlane);
         }
 
@@ -148,5 +151,6 @@ namespace PaleRdr
 
     private:
         float m_FarPlane, m_NearPlane;
+        float m_ViewportWidth, m_ViewportHeight;
     };
 }

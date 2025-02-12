@@ -19,6 +19,21 @@ namespace PaleRdr
         __initMesh();
 	}
 
+    //CMeshOpenGL::CMeshOpenGL(CMeshOpenGL&& vOther):
+    //    m_EBO(vOther.m_EBO), m_VAO(vOther.m_VAO), m_VBO(vOther.m_VAO)
+    //{
+    //    m_EBO = 0;
+    //    m_VAO = 0;
+    //    m_VBO = 0;
+    //}
+
+    CMeshOpenGL::~CMeshOpenGL()
+    {
+        //glDeleteBuffers(1, &m_VBO);
+        //glDeleteBuffers(1, &m_EBO);
+        //glDeleteVertexArrays(1, &m_VAO);
+    }
+
     void CMeshOpenGL::draw(const CPassOpenGL& vPass)
     {
         vPass.use();

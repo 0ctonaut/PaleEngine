@@ -11,6 +11,8 @@ namespace PaleRdr
 	class PALE_API CModel
 	{
 	public:
+		static std::vector<CMeshOpenGL> getCubeMeshes();
+	public:
 		CModel() = default;
 		CModel(std::filesystem::path vPath);
 		bool load(std::filesystem::path vPath);

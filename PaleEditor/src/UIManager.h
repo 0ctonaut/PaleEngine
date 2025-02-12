@@ -14,7 +14,7 @@ namespace PaleUI
         void OnUISetup(GLFWwindow* vWindow);
 
         void OnUIBeginFrame();
-        void OnUIRender(PaleRdr::CScene& vScene);
+        void OnUIRender(PaleRdr::CScene& vScene, std::shared_ptr<PaleRdr::CFrameBufferOpenGL> vFrameBuffer);
         void OnUIEndFrame();
         void OnUIDestroy();
 

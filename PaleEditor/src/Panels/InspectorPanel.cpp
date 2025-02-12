@@ -14,7 +14,12 @@ namespace PaleUI
     {
         ImGui::Begin("Inspector");
         __renderUICompName(vRegistry, m_SelectionEntity);
+		ImGui::Separator();
         __renderUICompTrans(vRegistry, m_SelectionEntity);
+		ImGui::Separator();
+		__renderUICompLight(vRegistry, m_SelectionEntity);
+		ImGui::Separator();
+
         ImGui::End();
     }
 
@@ -33,6 +38,7 @@ namespace PaleUI
 
     void CInspectorPanel::__renderUICompTrans(entt::registry& vRegistry, const entt::entity& vId)
     {
+		ImGui::Text("Transfrom");
         if (auto* trans = vRegistry.try_get<PaleRdr::SCompTransform>(vId))
         {
 			__drawVec3Control("Position", trans->_Position, trans->_InitPosition, -10.f, 10.f, 0.1f);
@@ -42,6 +48,17 @@ namespace PaleUI
 			__drawVec3Control("Scale", trans->_Scale, trans->_InitScale, 0.1f, 5.f, 0.1f);
         }
     }
+
+	void CInspectorPanel::__renderUICompLight(entt::registry& vRegistry, const entt::entity& vId)
+	{
+		ImGui::Text("PointLight");
+
+		if (auto* light = vRegistry.try_get<PaleRdr::SCompPointLight>(vId))
+		{
+			ImGui::ColorEdit3("Color", glm::value_ptr(light->_Color));
+			ImGui::DragFloat("Intensity", &light->_Intensity, 0.002f, 0.0f, 1.0f, "%.2f");
+		}
+	}
 
     // -------------
 

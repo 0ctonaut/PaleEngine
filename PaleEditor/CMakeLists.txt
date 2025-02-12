@@ -5,20 +5,10 @@ file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 file(GLOB PANELS_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/Panels/*.h")
 file(GLOB PANELS_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/Panels/*.cpp")
 
-file(GLOB SHADER_VERT "${ROOT_DIR}/Assets/Shaders/*.vert")
-file(GLOB SHADER_FRAG "${ROOT_DIR}/Assets/Shaders/*.frag")
-file(GLOB IMAGE_PNG "${ROOT_DIR}/Assets/Images/*.png")
-file(GLOB IMAGE_JPG "${ROOT_DIR}/Assets/Images/*.jpg")
-
 source_group("src" FILES ${HEADERS} ${SOURCES})
 source_group("Panels" FILES ${PANELS_HEADERS} ${PANELS_SOURCES})
-source_group("Shaders" FILES ${SHADER_VERT} ${SHADER_FRAG})
-source_group("Images" FILES ${IMAGE_PNG} ${IMAGE_JPG})
 
-add_executable(PaleEditor ${SOURCES} ${HEADERS} 
-    ${SHADER_VERT} ${SHADER_FRAG}
-    ${IMAGE_PNG} ${IMAGE_JPG}
-)
+add_executable(PaleEditor ${SOURCES} ${HEADERS} )
 
 target_include_directories(PaleEditor
     PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)

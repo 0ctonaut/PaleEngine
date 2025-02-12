@@ -28,6 +28,46 @@ namespace PaleRdr
 		return true;
 	}
 
+	std::vector<CMeshOpenGL> CModel::getCubeMeshes()
+	{
+		std::vector<CMeshOpenGL> meshes;
+
+		std::vector<CVertexOpenGL> vertices = {
+			{{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},  // 0
+			{{ 0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // 1
+			{{ 0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},  // 2
+			{{-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},  // 3
+
+			{{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}}, // 4
+			{{ 0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}}, // 5
+			{{ 0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}}, // 6
+			{{-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}}, // 7
+		};
+
+		std::vector<unsigned int> indices = {
+			// F
+			0, 1, 2,
+			2, 3, 0,
+			// B
+			4, 5, 6,
+			6, 7, 4,
+			// L
+			4, 0, 3,
+			3, 7, 4,
+			// R
+			1, 5, 6,
+			6, 2, 1,
+			// T
+			3, 2, 6,
+			6, 7, 3,
+			// B
+			4, 5, 1,
+			1, 0, 4
+		};
+		meshes.push_back(CMeshOpenGL(vertices, {}, indices));
+		return meshes;
+	}
+
 	bool CModel::__processNode(aiNode* node, const aiScene* scene)
 	{
 		// process all the node's meshes (if any)

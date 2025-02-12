@@ -1,3 +1,4 @@
+#pragma once
 #include <entt/entt.hpp>
 #include <glm/glm.hpp>
 #include "PaleRenderer/Core/PaleRendererExport.h"
@@ -6,25 +7,40 @@
 namespace PaleRdr
 {
     class CPassOpenGL;
+
+    struct SSceneLight
+    {
+        glm::vec3 _Position;
+        glm::vec3 _Color;
+        float _Intensity;
+    };
+
     class PALE_API CScene
     {
     public:
         CScene();
         ~CScene();
-        entt::entity addEntity(const std::string& vName = "Empty-Object");
+        entt::entity addEntity(
+            const std::string& vName = "Empty-Object",
+            const glm::vec3& vPosition = glm::vec3(0.0),
+            const glm::vec3& vRotation = glm::vec3(0.0),
+            const glm::vec3& vScale = glm::vec3(1.0)
+        );
         inline entt::registry& fetchRegistry() { return m_Registry; }
-        void OnRender();
+        void OnRender(std::shared_ptr<CFrameBufferOpenGL> vFrameBuffer);
 
-        inline PaleRdr::CCamera* fetchSceneCam() { return m_pCamera; }
+        inline PaleRdr::CCamera* fetchSceneCam() { return m_pSceneCamera; }
 
     private:
-        void __BeforeRenderMeshRdr();
+        void __BeforeRender();
+        void __OnRenderLight();
         void __OnRenderMeshRdr();
 
     private:
         // Scene
         glm::vec4 m_BackgroundColor;
-        PaleRdr::CCamera* m_pCamera;
+        PaleRdr::CCamera* m_pSceneCamera;
+        std::vector<SSceneLight> m_SceneLights;
 
         // ECS
         entt::registry m_Registry;

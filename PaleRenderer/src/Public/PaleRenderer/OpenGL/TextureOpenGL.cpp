@@ -14,16 +14,20 @@ namespace PaleRdr
         __initTex();
     }
 
-    CTextureOpenGL::CTextureOpenGL(const std::string& vPath)
+    CTextureOpenGL::CTextureOpenGL(const std::string& vPath) : 
+        CTextureOpenGL()
     {
-        __initTex();
         __loadImage(vPath);
     }
 
-    CTextureOpenGL::CTextureOpenGL(const std::filesystem::path& vPath)
+    CTextureOpenGL::CTextureOpenGL(const std::filesystem::path& vPath) : 
+        CTextureOpenGL(vPath.string())
     {
-        __initTex();
-        __loadImage(vPath.string());
+
+    }
+    CTextureOpenGL::~CTextureOpenGL()
+    {
+        // glDeleteTextures(1, &m_TexID);
     }
     void CTextureOpenGL::__initTex()
     {

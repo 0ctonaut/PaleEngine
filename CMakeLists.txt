@@ -42,3 +42,5 @@ foreach(lib IN ITEMS PaleRenderer PaleEditor)
     string(REPLACE "\\" "/" CURRENT_DIR_UNIX_STYLE ${ROOT_DIR})
     target_compile_definitions(${lib} PRIVATE ROOT_DIR="${ROOT_DIR}")
 endforeach()
+
+add_subdirectory(Assets)

@@ -6,10 +6,11 @@
 #include "PaleRenderer/Core/Application.h"
 
 // --- ECS ---
-#include "ECS/Scene.h"
-#include "ECS/NameComp.h"
-#include "ECS/TransformComp.h"
-#include "ECS/MeshRendererComp.h"
+#include "PaleRenderer/ECS/Scene.h"
+#include "PaleRenderer/ECS/NameComp.h"
+#include "PaleRenderer/ECS/TransformComp.h"
+#include "PaleRenderer/ECS/MeshRendererComp.h"
+#include "PaleRenderer/ECS/LightComp.h"
 
 // --- OpenGL ---
 #include "OpenGL/PassOpenGL.h"

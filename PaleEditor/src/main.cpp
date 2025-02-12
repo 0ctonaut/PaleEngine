@@ -1,46 +1,63 @@
 #include "stdafx.h"
 #define GL_SILENCE_DEPRECATION
-#include <PaleRenderer/PaleRendererOpenGL.h>
+
 #include <GLFW/glfw3.h>
 #include "UIManager.h"
-
-float deltaTime = 0.0f;	// time between current frame and last frame
-float lastFrame = 0.0f;
 
 float lastX = 1920 / 2.0f;
 float lastY = 1080 / 2.0f;
 bool firstMouse = true;
 bool bMouseRightButtonPress = false;
-void processInput(GLFWwindow* window, PaleRdr::CCamera* vCam);
+void processInput(GLFWwindow* window, PaleRdr::CCamera* vCam, float vDeltaTime);
 
 // Main code
 int main(int, char**)
 {
     spdlog::set_level(spdlog::level::trace);
-    GLFWwindow* pWindow = PaleRdr::CApplication::getInstance().fetchWindow()->fetchWindowPtr();
+    PaleRdr::CApplication app;
+    GLFWwindow* pWindow = app.fetchWindow()->fetchWindowPtr();
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         spdlog::error("glad failed!");
     }
     glfwSwapInterval(1); // Enable vsync
 
-	PaleRdr::CPassOpenGL pass1(
-        CPathManager::getInstance().getRootDir() / "Assets/Shaders/model.vert",
-		CPathManager::getInstance().getRootDir() / "Assets/Shaders/model.frag");
+    // --- scene ---
+    PaleRdr::CScene scene;
+	PaleRdr::CPassOpenGL passModel(
+        CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong.vert",
+		CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong.frag");
 	
     PaleRdr::CModel ourModel(CPathManager::getInstance().getRootDir() / "Assets/Models/backpack/backpack.obj");
-    PaleRdr::CScene scene;
+    
     auto& Registry = scene.fetchRegistry();
     entt::entity entity1 = scene.addEntity("backpack1");
-    Registry.emplace<PaleRdr::SCompMeshRenderer>(entity1, ourModel.getMeshes(), pass1);
+    Registry.emplace<PaleRdr::SCompMeshRenderer>(entity1, ourModel.getMeshes(), passModel, true);
 
     entt::entity entity2 = scene.addEntity("backpack2");
-    Registry.emplace<PaleRdr::SCompMeshRenderer>(entity2, ourModel.getMeshes(), pass1);
+    Registry.emplace<PaleRdr::SCompMeshRenderer>(entity2, ourModel.getMeshes(), passModel, true);
+
+    PaleRdr::CPassOpenGL passLight(
+        CPathManager::getInstance().getRootDir() / "Assets/Shaders/light_point.vert",
+        CPathManager::getInstance().getRootDir() / "Assets/Shaders/light_point.frag");
+
+    entt::entity light1 = scene.addEntity("light1", 
+        glm::vec3(3, 3, 3), glm::vec3(0, 0, 0), glm::vec3(0.1, 0.1, 0.1));
+    Registry.emplace<PaleRdr::SCompMeshRenderer>(light1, PaleRdr::CModel::getCubeMeshes(), passLight, false);
+    Registry.emplace<PaleRdr::SCompPointLight>(light1, glm::vec3(1, 1, 1), 1.0f);
+
+    //entt::entity light2 = scene.addEntity("light2",
+    //    glm::vec3(-5, 5, 5), glm::vec3(0, 0, 0), glm::vec3(0.1, 0.1, 0.1));
+    //Registry.emplace<PaleRdr::SCompMeshRenderer>(light2, PaleRdr::CModel::getCubeMeshes(), passLight);
+    //Registry.emplace<PaleRdr::SCompPointLight>(light2, glm::vec3(1, 1, 1), 1.0f);
+
+    // --- ---
 
     PaleUI::CUIManager UIManager;
     UIManager.OnUISetup(pWindow);
-    UIManager.EventViewportResize.subscribe([](unsigned int vWidth, unsigned int vHeight) {
-        PaleRdr::CApplication::getInstance().OnViewportResize(vWidth, vHeight);
+    UIManager.EventViewportResize.subscribe([&app, &scene](unsigned int vWidth, unsigned int vHeight) {
+        app.OnViewportResize(vWidth, vHeight);
+        scene.fetchSceneCam()->OnViewportResize(vWidth, vHeight);
         });
 
 #pragma region glfw callback
@@ -88,32 +105,24 @@ int main(int, char**)
     while (!glfwWindowShouldClose(pWindow))
     {
         glfwPollEvents();
-        PaleRdr::CApplication::getInstance().OnRender(io.Framerate);
+        app.OnRender(io.Framerate);
 
         UIManager.OnUIBeginFrame();
 
-        float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
+        processInput(pWindow, scene.fetchSceneCam(), app.getDeltaTime());
+        scene.OnRender(app.getFrameBuffer());
 
-        processInput(pWindow, scene.fetchSceneCam());
-        
-        PaleRdr::CApplication::getInstance().getFrameBuffer()->bind();
-        scene.OnRender();
-        PaleRdr::CApplication::getInstance().getFrameBuffer()->unbind();
-
-        UIManager.OnUIRender(scene);
+        UIManager.OnUIRender(scene, app.getFrameBuffer());
         UIManager.OnUIEndFrame();
 
         glfwSwapBuffers(pWindow);
     }
 
-    glfwTerminate();
     UIManager.OnUIDestroy();
     return 0;
 }
 
-void processInput(GLFWwindow* window, PaleRdr::CCamera* vCam)
+void processInput(GLFWwindow* window, PaleRdr::CCamera* vCam, float vDeltaTime)
 {
     bMouseRightButtonPress = (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
     
@@ -122,17 +131,17 @@ void processInput(GLFWwindow* window, PaleRdr::CCamera* vCam)
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-            vCam->ProcessKeyboard(PaleRdr::ECameraMove::FORWARD, deltaTime);
+            vCam->ProcessKeyboard(PaleRdr::ECameraMove::FORWARD, vDeltaTime);
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-            vCam->ProcessKeyboard(PaleRdr::ECameraMove::BACKWARD, deltaTime);
+            vCam->ProcessKeyboard(PaleRdr::ECameraMove::BACKWARD, vDeltaTime);
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-            vCam->ProcessKeyboard(PaleRdr::ECameraMove::LEFT, deltaTime);
+            vCam->ProcessKeyboard(PaleRdr::ECameraMove::LEFT, vDeltaTime);
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-            vCam->ProcessKeyboard(PaleRdr::ECameraMove::RIGHT, deltaTime);
+            vCam->ProcessKeyboard(PaleRdr::ECameraMove::RIGHT, vDeltaTime);
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-            vCam->ProcessKeyboard(PaleRdr::ECameraMove::UP, deltaTime);
+            vCam->ProcessKeyboard(PaleRdr::ECameraMove::UP, vDeltaTime);
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-            vCam->ProcessKeyboard(PaleRdr::ECameraMove::DOWN, deltaTime);
+            vCam->ProcessKeyboard(PaleRdr::ECameraMove::DOWN, vDeltaTime);
     }
 }
 

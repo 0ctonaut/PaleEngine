@@ -69,6 +69,11 @@ namespace PaleRdr
         ID = vOther.ID;
     }
 
+    CPassOpenGL::~CPassOpenGL()
+    {
+        //glDeleteProgram(ID);
+    }
+
     void CPassOpenGL::__checkCompileErrors(GLuint shader, std::string type)
     {
         GLint success;

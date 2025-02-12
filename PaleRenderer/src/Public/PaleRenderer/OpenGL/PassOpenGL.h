@@ -16,6 +16,7 @@ namespace PaleRdr
         CPassOpenGL(const char* vertexPath, const char* fragmentPath);
         CPassOpenGL(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath);
         CPassOpenGL(const CPassOpenGL& vOther);
+        ~CPassOpenGL();
 
         void use() const
         {

@@ -17,6 +17,8 @@ namespace PaleRdr
 		CTextureOpenGL();
 		CTextureOpenGL(const std::string& vPath);
 		CTextureOpenGL(const std::filesystem::path& vPath);
+		// CTextureOpenGL(const CTextureOpenGL&) = delete;
+		~CTextureOpenGL();
 
 		inline unsigned int getTexID() const { return m_TexID; }
 		ETexture Type;

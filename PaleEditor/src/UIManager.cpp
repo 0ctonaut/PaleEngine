@@ -58,7 +58,7 @@ namespace PaleUI
 		ImGui::NewFrame();
 	}
 
-	void CUIManager::OnUIRender(PaleRdr::CScene& vScene)
+	void CUIManager::OnUIRender(PaleRdr::CScene& vScene, std::shared_ptr<PaleRdr::CFrameBufferOpenGL> vFrameBuffer)
 	{
 		auto& Registry = vScene.fetchRegistry();
 		auto view = Registry.view<PaleRdr::SCompName>();
@@ -77,7 +77,7 @@ namespace PaleUI
 
 		m_HierarchyPanel->OnUIRender(names);
 		m_InspectorPanel->OnUIRender(Registry);
-		m_ViewportPanel->OnUIRender();
+		m_ViewportPanel->OnUIRender(vFrameBuffer);
 	}
 
     void CUIManager::OnUIEndFrame()

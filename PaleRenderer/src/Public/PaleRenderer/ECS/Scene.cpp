@@ -3,6 +3,7 @@
 #include "PaleRenderer/ECS/NameComp.h"
 #include "PaleRenderer/ECS/TransformComp.h"
 #include "PaleRenderer/ECS/MeshRendererComp.h"
+#include "PaleRenderer/ECS/LightComp.h"
 #include "PaleRenderer/OpenGL/PassOpenGL.h"
 #include "PaleRenderer/Core/Application.h"
 
@@ -12,31 +13,39 @@ namespace PaleRdr
     {
         glEnable(GL_DEPTH_TEST);
         m_BackgroundColor = glm::vec4(0.45f, 0.55f, 0.60f, 1.00f);
-        m_pCamera = new CCamera(glm::vec3(0.0f, 0.0f, 10.0f));
+        m_pSceneCamera = new CCamera(glm::vec3(0.0f, 0.0f, 10.0f));
     }
 
     CScene::~CScene()
     {
-        delete m_pCamera;
+        delete m_pSceneCamera;
     }
 
-    entt::entity CScene::addEntity(const std::string& vName)
+    entt::entity CScene::addEntity(
+        const std::string& vName, 
+        const glm::vec3& vPosition, 
+        const glm::vec3& vRotation, 
+        const glm::vec3& vScale
+    )
     {
         entt::entity entity = m_Registry.create();
         m_Registry.emplace<PaleRdr::SCompName>(entity, vName);
-        m_Registry.emplace<PaleRdr::SCompTransform>(entity);
+        m_Registry.emplace<PaleRdr::SCompTransform>(entity, vPosition, vRotation, vScale);
 
         m_Entities.push_back(entity);
         return entity;
     }
 
-    void CScene::OnRender()
+    void CScene::OnRender(std::shared_ptr<CFrameBufferOpenGL> vFrameBuffer)
     {
-        __BeforeRenderMeshRdr();
+        vFrameBuffer->bind();
+        __BeforeRender();
+        __OnRenderLight();
         __OnRenderMeshRdr();
+        vFrameBuffer->unbind();
     }
 
-    void CScene::__BeforeRenderMeshRdr()
+    void CScene::__BeforeRender()
     {
         glClearColor(
             m_BackgroundColor.x * m_BackgroundColor.w, 
@@ -47,6 +56,18 @@ namespace PaleRdr
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
+    void CScene::__OnRenderLight()
+    {
+        for (auto& id : m_Entities)
+        {
+            if (auto* light = m_Registry.try_get<PaleRdr::SCompPointLight>(id))
+            {
+                auto* trans = m_Registry.try_get<PaleRdr::SCompTransform>(id);
+                m_SceneLights.push_back({trans->_Position, light->_Color, light->_Intensity});
+            }
+        }
+    }
+
     void CScene::__OnRenderMeshRdr()
     {
         for (auto& id : m_Entities)
@@ -55,15 +76,32 @@ namespace PaleRdr
             auto* trans = m_Registry.try_get<PaleRdr::SCompTransform>(id);
 
             meshrdr->_Pass.use();
-            meshrdr->_Pass.setMat4("projection", m_pCamera->getProjectionMatrix());
-            meshrdr->_Pass.setMat4("view", m_pCamera->getViewMatrix());
-            meshrdr->_Pass.setMat4("model", m_pCamera->getModelMatrix());
-            meshrdr->_Pass.setMat4("model", m_pCamera->getModelMatrix() * trans->getTransfrom());
+            meshrdr->_Pass.setMat4("uProjection", m_pSceneCamera->getProjectionMatrix());
+            meshrdr->_Pass.setMat4("uView", m_pSceneCamera->getViewMatrix());
+            meshrdr->_Pass.setMat4("uModel", m_pSceneCamera->getModelMatrix() * trans->getTransfrom());
+
+            if (meshrdr->_bLit)
+            {
+                for (int i = 0; i < m_SceneLights.size(); ++i)
+                {
+                    meshrdr->_Pass.setVec3("uLightPos", m_SceneLights[i]._Position);
+                    meshrdr->_Pass.setVec3("uLightColor", m_SceneLights[i]._Color);
+                    meshrdr->_Pass.setFloat("uLightIntensity", m_SceneLights[i]._Intensity);
+                }
+                meshrdr->_Pass.setVec3("uViewPos", m_pSceneCamera->Position);
+            }
+
+            if (auto* light = m_Registry.try_get<PaleRdr::SCompPointLight>(id))
+            {
+                meshrdr->_Pass.setVec3("uLightColor", light->_Color);
+                meshrdr->_Pass.setFloat("uIntensity", light->_Intensity);
+            }
+
             for (auto& mesh : meshrdr->_Meshes)
             {
                 mesh.draw(meshrdr->_Pass);
             }
-            meshrdr->_Pass.setMat4("model", m_pCamera->getModelMatrix());
+            meshrdr->_Pass.setMat4("uModel", m_pSceneCamera->getModelMatrix());
         }
     }
 }
