@@ -76,9 +76,16 @@ namespace PaleRdr
             auto* trans = m_Registry.try_get<PaleRdr::SCompTransform>(id);
 
             meshrdr->_Pass.use();
-            meshrdr->_Pass.setMat4("uProjection", m_pSceneCamera->getProjectionMatrix());
-            meshrdr->_Pass.setMat4("uView", m_pSceneCamera->getViewMatrix());
-            meshrdr->_Pass.setMat4("uModel", m_pSceneCamera->getModelMatrix() * trans->getTransfrom());
+
+            glm::mat4 uProject = m_pSceneCamera->getProjectionMatrix();
+            glm::mat4 uView = m_pSceneCamera->getViewMatrix();
+            glm::mat4 uModel = trans->getTransfrom();
+
+            meshrdr->_Pass.setMat4("uProjection", uProject);
+            meshrdr->_Pass.setMat4("uView", uView);
+            meshrdr->_Pass.setMat4("uModel", uModel);
+            meshrdr->_Pass.setMat3("uNormalMatrix", glm::transpose(glm::inverse(glm::mat3(uModel))));
+
 
             if (meshrdr->_bLit)
             {
@@ -101,7 +108,9 @@ namespace PaleRdr
             {
                 mesh.draw(meshrdr->_Pass);
             }
-            meshrdr->_Pass.setMat4("uModel", m_pSceneCamera->getModelMatrix());
+
+            //uModel = m_pSceneCamera->getModelMatrix();
+            //meshrdr->_Pass.setMat4("uModel", uModel);
         }
     }
 }

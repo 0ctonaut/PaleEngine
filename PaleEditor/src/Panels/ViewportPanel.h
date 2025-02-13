@@ -14,7 +14,6 @@ namespace PaleUI
     public:
     
     private:
-        bool m_bInitViewport;
         ImVec2 m_PrevViewportSize;
         Event<unsigned int, unsigned int>* m_EventViewportResize;
     };

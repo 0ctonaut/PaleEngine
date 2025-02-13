@@ -59,7 +59,7 @@ namespace PaleRdr
 
 		void __updateTranfrom()
 		{
-			_Transform = __calTransform(_Position, _Rotation, _Scale);
+			_Transform = __calTransform(_Position, glm::radians(_Rotation), _Scale);
 		}
 
 		glm::mat4 _Transform = glm::mat4(1.0);

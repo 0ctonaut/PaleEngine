@@ -42,9 +42,7 @@ namespace PaleUI
         if (auto* trans = vRegistry.try_get<PaleRdr::SCompTransform>(vId))
         {
 			__drawVec3Control("Position", trans->_Position, trans->_InitPosition, -10.f, 10.f, 0.1f);
-			glm::vec3 Rotation = glm::degrees(trans->_Rotation);
-			__drawVec3Control("Rotation", Rotation, glm::degrees(trans->_InitRotation), -360.f, 360.f, 2.f);
-			trans->_Rotation = glm::radians(Rotation);
+			__drawVec3Control("Rotation", trans->_Rotation, trans->_InitRotation, -360.f, 360.f, 2.f);
 			__drawVec3Control("Scale", trans->_Scale, trans->_InitScale, 0.1f, 5.f, 0.1f);
         }
     }

@@ -5,9 +5,9 @@
 namespace PaleUI
 {
     CViewportPanel::CViewportPanel(Event<unsigned int, unsigned int>* vEventViewportResize) : 
-        m_EventViewportResize(vEventViewportResize), m_bInitViewport(false)
+        m_EventViewportResize(vEventViewportResize)
     {
-        m_PrevViewportSize = ImVec2(0, 0);
+        m_PrevViewportSize = ImVec2(1920, 1080);
     }
 
     CViewportPanel::~CViewportPanel()
@@ -21,12 +21,10 @@ namespace PaleUI
         ImGui::Begin("Scene");
         ViewportSize = ImGui::GetContentRegionAvail();
 
-        if (!m_bInitViewport || 
-            (m_PrevViewportSize.x != ViewportSize.x && m_PrevViewportSize.y != ViewportSize.y))
+        if (m_PrevViewportSize.x != ViewportSize.x || m_PrevViewportSize.y != ViewportSize.y)
         {
             m_EventViewportResize->invoke(ViewportSize.x, ViewportSize.y);
             m_PrevViewportSize = ViewportSize;
-            m_bInitViewport = true;
         }
 
         unsigned int ColorID = vFrameBuffer->getColorBufferID();

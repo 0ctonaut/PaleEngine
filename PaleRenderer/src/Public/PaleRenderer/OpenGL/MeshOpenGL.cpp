@@ -3,6 +3,13 @@
 
 namespace PaleRdr
 {
+    CMeshOpenGL::CMeshOpenGL(const std::vector<CVertexOpenGL>& vVertices, const std::vector<unsigned int>& vIndices)
+    {
+        m_Vertices = vVertices;
+        m_Indices = vIndices;
+        __initMesh();
+    }
+
 	CMeshOpenGL::CMeshOpenGL(const std::vector<CVertexOpenGL>& vVertices, const std::vector<CTextureOpenGL>& vTextures, const std::vector<unsigned int>& vIndices)
 	{
 		m_Vertices = vVertices;
@@ -37,6 +44,7 @@ namespace PaleRdr
     void CMeshOpenGL::draw(const CPassOpenGL& vPass)
     {
         vPass.use();
+        vPass.setBool("uUseTex", !m_Textures.empty());
         for (unsigned int i = 0; i < m_Textures.size(); ++i)
         {
             unsigned int numDiffuse = 1;
@@ -87,8 +95,11 @@ namespace PaleRdr
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(CVertexOpenGL), (void*)offsetof(CVertexOpenGL, Normal));
         // vertex texture coords
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(CVertexOpenGL), (void*)offsetof(CVertexOpenGL, TexCoord));
+        if (m_Textures.size() > 0)
+        {
+            glEnableVertexAttribArray(2);
+            glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(CVertexOpenGL), (void*)offsetof(CVertexOpenGL, TexCoord));
+        }
 
         glBindVertexArray(0);
 	}

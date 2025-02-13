@@ -13,11 +13,17 @@ namespace PaleRdr
 		glm::vec3 Position;
 		glm::vec3 Normal;
 		glm::vec2 TexCoord;
+		bool bHasTex;
 	};
 
 	class PALE_API CMeshOpenGL
 	{
 	public:
+		CMeshOpenGL(
+			const std::vector<CVertexOpenGL>& vVertices,
+			const std::vector<unsigned int>& vIndices
+		);
+
 		CMeshOpenGL(
 			const std::vector<CVertexOpenGL>& vVertices,
 			const std::vector<CTextureOpenGL>& vTextures,

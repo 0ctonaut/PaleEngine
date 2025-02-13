@@ -28,22 +28,21 @@ int main(int, char**)
         CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong.vert",
 		CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong.frag");
 	
-    PaleRdr::CModel ourModel(CPathManager::getInstance().getRootDir() / "Assets/Models/backpack/backpack.obj");
+    PaleRdr::CModelLoader ourModel(CPathManager::getInstance().getRootDir() / "Assets/Models/backpack/backpack.obj");
     
     auto& Registry = scene.fetchRegistry();
-    entt::entity entity1 = scene.addEntity("backpack1");
+    entt::entity entity1 = scene.addEntity("backpack",
+        glm::vec3(0, 0, 0), glm::vec3(0, 180, 0), glm::vec3(1, 1, 1));
+        
     Registry.emplace<PaleRdr::SCompMeshRenderer>(entity1, ourModel.getMeshes(), passModel, true);
-
-    entt::entity entity2 = scene.addEntity("backpack2");
-    Registry.emplace<PaleRdr::SCompMeshRenderer>(entity2, ourModel.getMeshes(), passModel, true);
 
     PaleRdr::CPassOpenGL passLight(
         CPathManager::getInstance().getRootDir() / "Assets/Shaders/light_point.vert",
         CPathManager::getInstance().getRootDir() / "Assets/Shaders/light_point.frag");
 
     entt::entity light1 = scene.addEntity("light1", 
-        glm::vec3(3, 3, 3), glm::vec3(0, 0, 0), glm::vec3(0.1, 0.1, 0.1));
-    Registry.emplace<PaleRdr::SCompMeshRenderer>(light1, PaleRdr::CModel::getCubeMeshes(), passLight, false);
+        glm::vec3(0, 0, 1.6), glm::vec3(0, 0, 0), glm::vec3(0.05, 0.05, 0.05));
+    Registry.emplace<PaleRdr::SCompMeshRenderer>(light1, PaleRdr::CModelLoader::getCubeMeshes(), passLight, false);
     Registry.emplace<PaleRdr::SCompPointLight>(light1, glm::vec3(1, 1, 1), 1.0f);
 
     //entt::entity light2 = scene.addEntity("light2",

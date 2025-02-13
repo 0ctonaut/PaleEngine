@@ -365,3 +365,4 @@ FodyWeavers.xsd
 # custom
 build/
 .vscode/
+Assets/Models

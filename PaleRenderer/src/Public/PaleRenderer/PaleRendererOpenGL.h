@@ -2,7 +2,7 @@
 //
 #include "PaleRenderer/Core/Camera.h"
 #include "PaleRenderer/Core/PathManager.h"
-#include "PaleRenderer/Core/Model.h"
+#include "PaleRenderer/Core/ModelLoader.h"
 #include "PaleRenderer/Core/Application.h"
 
 // --- ECS ---
