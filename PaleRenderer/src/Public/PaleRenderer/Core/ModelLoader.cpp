@@ -3,32 +3,7 @@
 
 namespace PaleRdr
 {
-	CModelLoader::CModelLoader(std::filesystem::path vPath)
-	{
-		load(vPath);
-	}
-	bool CModelLoader::load(std::filesystem::path vPath)
-	{
-		Assimp::Importer importer;
-		const aiScene* scene = importer.ReadFile(
-			vPath.string(), 
-			aiProcess_Triangulate | aiProcess_FlipUVs
-		);
-
-		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-		{
-			spdlog::error("ASSIMP {}", importer.GetErrorString());
-			return false;
-		}
-		m_ModelPath = vPath.parent_path();
-		if (__processNode(scene->mRootNode, scene))
-		{
-			return false;
-		}
-		return true;
-	}
-
-	std::vector<CMeshOpenGL> CModelLoader::getCubeMeshes()
+	std::vector<CMeshOpenGL> IModelLoader::getCubeMeshes()
 	{
 		std::vector<CMeshOpenGL> meshes;
 
@@ -84,8 +59,35 @@ namespace PaleRdr
 			24, 25, 26, 27, 28, 29,
 			30, 31, 32, 33, 34, 35
 		};
-		meshes.push_back(CMeshOpenGL(vertices, indices));
+		meshes.push_back(CMeshOpenGL(vertices, indices, false, false));
 		return meshes;
+	}
+
+	// --------------------------------------------------------------------------------------
+
+	CModelLoader::CModelLoader(std::filesystem::path vPath)
+	{
+		loadV(vPath);
+	}
+	bool CModelLoader::loadV(std::filesystem::path vPath)
+	{
+		Assimp::Importer importer;
+		const aiScene* scene = importer.ReadFile(
+			vPath.string(), 
+			aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace
+		);
+
+		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+		{
+			spdlog::error("ASSIMP {}", importer.GetErrorString());
+			return false;
+		}
+		m_ModelPath = vPath.parent_path();
+		if (__processNode(scene->mRootNode, scene))
+		{
+			return false;
+		}
+		return true;
 	}
 
 	bool CModelLoader::__processNode(aiNode* node, const aiScene* scene)
@@ -113,8 +115,6 @@ namespace PaleRdr
 		std::vector<CTextureOpenGL> textures;
 		std::vector<unsigned int> indices;
 
-		bool bHasTex = (mesh->mTextureCoords[0] != nullptr);
-
 		for (int i = 0; i < mesh->mNumVertices; ++i)
 		{
 			CVertexOpenGL vertex;
@@ -132,15 +132,27 @@ namespace PaleRdr
 			);
 			vertex.Normal = normal;
 
-			vertex.bHasTex = bHasTex;
-			if (bHasTex)
-			{
-				glm::vec2 texcoord(
-					mesh->mTextureCoords[0][i].x,
-					mesh->mTextureCoords[0][i].y
-				);
-				vertex.TexCoord = texcoord;
-			}
+			glm::vec2 texcoord(
+				mesh->mTextureCoords[0][i].x,
+				mesh->mTextureCoords[0][i].y
+			);
+			vertex.TexCoord = texcoord;
+			
+			glm::vec3 tangent(
+				mesh->mTangents[i].x,
+				mesh->mTangents[i].y,
+				mesh->mTangents[i].z
+			);
+
+			vertex.Tangent = tangent;
+
+			glm::vec3 bitangent(
+				mesh->mBitangents[i].x,
+				mesh->mBitangents[i].y,
+				mesh->mBitangents[i].z
+			);
+			vertex.BiTangent = bitangent;
+
 			vertices.push_back(vertex);
 		}
 
@@ -150,18 +162,28 @@ namespace PaleRdr
 				indices.push_back(mesh->mFaces[i].mIndices[j]);
 		}
 
-		if (bHasTex && mesh->mMaterialIndex >= 0)
+		unsigned int numTex = 0;
+		unsigned int numNormalMap = 0;
+
+		if (mesh->mMaterialIndex >= 0)
 		{
 			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 			std::vector<CTextureOpenGL> diffuseMaps = __loadTexturesFromMat(material, aiTextureType_DIFFUSE, ETexture::Diffuse);
 			textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
 			std::vector<CTextureOpenGL> specularMaps = __loadTexturesFromMat(material, aiTextureType_SPECULAR, ETexture::Specular);
 			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+			std::vector<CTextureOpenGL> normalMaps = __loadTexturesFromMat(material, aiTextureType_HEIGHT, ETexture::Normal);
+			textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
 		}
 
-		return CMeshOpenGL(std::move(vertices), std::move(textures), std::move(indices));
+		return CMeshOpenGL(
+			std::move(vertices), 
+			std::move(textures), 
+			std::move(indices),
+			true, true
+			);
 	}
-	std::vector<CTextureOpenGL> CModelLoader::__loadTexturesFromMat(aiMaterial* mat, aiTextureType aiType, ETexture type)
+	std::vector<CTextureOpenGL> CModelLoader::__loadTexturesFromMat(aiMaterial* mat, aiTextureType aiType, ETexture type, bool vFlip)
 	{
 		std::vector<CTextureOpenGL> textures;
 		for (unsigned int i = 0; i < mat->GetTextureCount(aiType); ++i)
@@ -176,7 +198,7 @@ namespace PaleRdr
 			}
 			else
 			{
-				CTextureOpenGL texture(path);
+				CTextureOpenGL texture(path, vFlip);
 				texture.Type = type;
 				textures.push_back(texture);
 				m_TexCache[path] = texture;
@@ -184,4 +206,5 @@ namespace PaleRdr
 		}
 		return textures;
 	}
+
 }

@@ -8,15 +8,16 @@ namespace PaleRdr
 	enum class ETexture
 	{
 		Diffuse,
-		Specular
+		Specular,
+		Normal
 	};
 
 	class PALE_API CTextureOpenGL
 	{
 	public:
 		CTextureOpenGL();
-		CTextureOpenGL(const std::string& vPath);
-		CTextureOpenGL(const std::filesystem::path& vPath);
+		CTextureOpenGL(const std::string& vPath, bool vFlip = true);
+		CTextureOpenGL(const std::filesystem::path& vPath, bool vFlip = true);
 		// CTextureOpenGL(const CTextureOpenGL&) = delete;
 		~CTextureOpenGL();
 
@@ -25,7 +26,7 @@ namespace PaleRdr
 
 	private:
 		void __initTex();
-		void __loadImage(const std::string& vPath);
+		void __loadImage(const std::string& vPath, bool vFlip = true);
 		unsigned int m_TexID;
 	};
 }

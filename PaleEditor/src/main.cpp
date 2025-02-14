@@ -25,14 +25,14 @@ int main(int, char**)
     // --- scene ---
     PaleRdr::CScene scene;
 	PaleRdr::CPassOpenGL passModel(
-        CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong.vert",
-		CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong.frag");
+        CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong_normalmapping.vert",
+		CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong_normalmapping.frag");
 	
     PaleRdr::CModelLoader ourModel(CPathManager::getInstance().getRootDir() / "Assets/Models/backpack/backpack.obj");
     
     auto& Registry = scene.fetchRegistry();
     entt::entity entity1 = scene.addEntity("backpack",
-        glm::vec3(0, 0, 0), glm::vec3(0, 180, 0), glm::vec3(1, 1, 1));
+        glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
         
     Registry.emplace<PaleRdr::SCompMeshRenderer>(entity1, ourModel.getMeshes(), passModel, true);
 

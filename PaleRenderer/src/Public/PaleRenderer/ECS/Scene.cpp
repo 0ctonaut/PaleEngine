@@ -108,9 +108,6 @@ namespace PaleRdr
             {
                 mesh.draw(meshrdr->_Pass);
             }
-
-            //uModel = m_pSceneCamera->getModelMatrix();
-            //meshrdr->_Pass.setMat4("uModel", uModel);
         }
     }
 }

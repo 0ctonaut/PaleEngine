@@ -3,22 +3,21 @@
 
 namespace PaleRdr
 {
-    CMeshOpenGL::CMeshOpenGL(const std::vector<CVertexOpenGL>& vVertices, const std::vector<unsigned int>& vIndices)
+    CMeshOpenGL::CMeshOpenGL(
+        const std::vector<CVertexOpenGL>& vVertices, 
+        const std::vector<unsigned int>& vIndices,
+        bool vUseTex, bool vUseNormalMap) : m_bUseTex(vUseTex), m_bUseNormalMap(vUseNormalMap)
     {
         m_Vertices = vVertices;
         m_Indices = vIndices;
         __initMesh();
     }
 
-	CMeshOpenGL::CMeshOpenGL(const std::vector<CVertexOpenGL>& vVertices, const std::vector<CTextureOpenGL>& vTextures, const std::vector<unsigned int>& vIndices)
-	{
-		m_Vertices = vVertices;
-		m_Textures = vTextures;
-		m_Indices = vIndices;
-        __initMesh();
-	}
-
-	CMeshOpenGL::CMeshOpenGL(std::vector<CVertexOpenGL>&& vVertices, std::vector<CTextureOpenGL>&& vTextures, std::vector<unsigned int>&& vIndices)
+	CMeshOpenGL::CMeshOpenGL(
+        const std::vector<CVertexOpenGL>& vVertices, 
+        const std::vector<CTextureOpenGL>& vTextures, 
+        const std::vector<unsigned int>& vIndices,
+        bool vUseTex, bool vUseNormalMap): m_bUseTex(vUseTex), m_bUseNormalMap(vUseNormalMap)
 	{
 		m_Vertices = vVertices;
 		m_Textures = vTextures;
@@ -44,20 +43,24 @@ namespace PaleRdr
     void CMeshOpenGL::draw(const CPassOpenGL& vPass)
     {
         vPass.use();
-        vPass.setBool("uUseTex", !m_Textures.empty());
+        unsigned int numDiffuse = 1;
+        unsigned int numSpecular = 1;
+        unsigned int numNormal = 1;
         for (unsigned int i = 0; i < m_Textures.size(); ++i)
         {
-            unsigned int numDiffuse = 1;
-            unsigned int numSpecular = 1;
             glActiveTexture(GL_TEXTURE0 + i);
             std::string name;
             if (m_Textures[i].Type == ETexture::Diffuse)
             {
-                name = std::format("mat.tex_diffuse{}", numDiffuse++);
+                name = std::format("tex_diffuse{}", numDiffuse++);
             }
             else if (m_Textures[i].Type == ETexture::Specular)
             {
-                name = std::format("mat.tex_specular{}", numSpecular++);
+                name = std::format("tex_specular{}", numSpecular++);
+            }
+            else if (m_Textures[i].Type == ETexture::Normal)
+            {
+                name = std::format("tex_normal{}", numNormal++);
             }
             else
             {
@@ -67,6 +70,10 @@ namespace PaleRdr
             vPass.setInt(name, i);
             glBindTexture(GL_TEXTURE_2D, m_Textures[i].getTexID());
         }
+
+        vPass.setBool("uUseTex", m_bUseTex);
+        vPass.setBool("uUseNormalMap", m_bUseTex && m_bUseNormalMap);
+
         glActiveTexture(GL_TEXTURE0);
 
         glBindVertexArray(m_VAO);
@@ -95,12 +102,20 @@ namespace PaleRdr
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(CVertexOpenGL), (void*)offsetof(CVertexOpenGL, Normal));
         // vertex texture coords
-        if (m_Textures.size() > 0)
+        if (m_bUseTex)
         {
             glEnableVertexAttribArray(2);
             glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(CVertexOpenGL), (void*)offsetof(CVertexOpenGL, TexCoord));
         }
 
+        if (m_bUseTex && m_bUseNormalMap)
+        {
+            glEnableVertexAttribArray(3);
+            glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(CVertexOpenGL), (void*)offsetof(CVertexOpenGL, Tangent));
+
+            glEnableVertexAttribArray(4);
+            glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(CVertexOpenGL), (void*)offsetof(CVertexOpenGL, BiTangent));
+        }
         glBindVertexArray(0);
 	}
 }
