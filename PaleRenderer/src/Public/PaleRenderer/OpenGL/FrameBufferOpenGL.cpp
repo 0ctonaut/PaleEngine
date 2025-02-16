@@ -15,7 +15,7 @@ namespace PaleRdr
         __resetDepthBuffer(vWidth, vHeight);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            spdlog::error("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+            PALE_RDR_ERROR("Framebuffer is not complete!");
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 	CFrameBufferOpenGL::~CFrameBufferOpenGL()

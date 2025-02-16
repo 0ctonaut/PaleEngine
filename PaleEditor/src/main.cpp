@@ -15,7 +15,7 @@ int main(int, char**)
     GLFWwindow* pWindow = app.fetchWindow()->fetchWindowPtr();
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        spdlog::error("glad failed!");
+        PALE_EDITOR_ERROR("glad Loading failed!");
     }
     glfwSwapInterval(1); // Enable vsync
 
@@ -141,6 +141,10 @@ void processInput(GLFWwindow* window, PaleRdr::CCamera* vCam, float vDeltaTime)
             vCam->ProcessKeyboard(PaleRdr::ECameraMove::UP, vDeltaTime);
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
             vCam->ProcessKeyboard(PaleRdr::ECameraMove::DOWN, vDeltaTime);
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            vCam->SpeedAcc = 3.0;
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
+            vCam->SpeedAcc = 1.0;
     }
 }
 

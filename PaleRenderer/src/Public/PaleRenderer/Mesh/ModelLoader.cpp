@@ -17,7 +17,7 @@ namespace PaleRdr
 
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 		{
-			spdlog::error("ASSIMP {}", importer.GetErrorString());
+			PALE_RDR_ERROR("ASSIMP {}", importer.GetErrorString());
 			return false;
 		}
 		m_ModelPath = vPath.parent_path();

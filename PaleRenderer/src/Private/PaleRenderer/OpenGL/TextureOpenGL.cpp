@@ -5,6 +5,7 @@
 #include "PaleRenderer/Core/stb_image.h"
 // ------
 #include "PaleRenderer/Core/PathManager.h"
+#include "PaleRenderer/Core/Log.h"
 
 namespace PaleRdr
 {
@@ -41,12 +42,12 @@ namespace PaleRdr
     {
         if (!std::filesystem::exists(vPath))
         {
-            spdlog::error("{} doesn't exist.", vPath);
+            PALE_RDR_ERROR("{} doesn't exist.", vPath);
             return;
         }
         else
         {
-            spdlog::trace("load texture from {}.", vPath);
+            PALE_RDR_DEBUG("load texture from {}.", vPath);
         }
 
         // load image, create texture and generate mipmaps
@@ -60,7 +61,7 @@ namespace PaleRdr
         }
         else
         {
-            spdlog::error("Failed to load texture");
+            PALE_RDR_ERROR("Failed to load texture");
         }
         stbi_image_free(data);
     }

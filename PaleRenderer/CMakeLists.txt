@@ -53,6 +53,10 @@ target_link_libraries(PaleRenderer PUBLIC assimp)
 target_link_libraries(PaleRenderer PUBLIC EnTT)
 
 # --- macros ---
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    target_compile_definitions(PaleRenderer PUBLIC PALE_PLATFORM_WINDOWS)
+endif()
+
 get_target_property(LIB_TYPE PaleRenderer TYPE)
 if (LIB_TYPE STREQUAL "STATIC_LIBRARY")
     message(STATUS "PaleRenderer: STATIC library.")

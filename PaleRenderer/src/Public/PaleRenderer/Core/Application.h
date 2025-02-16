@@ -1,7 +1,7 @@
 #pragma once
+#include "PaleRenderer/Core/PaleRendererExport.h"
 #include "PaleRenderer/Common/Singleton.h"
 #include "PaleRenderer/OpenGL/FrameBufferOpenGL.h"
-#include "PaleRenderer/Core/PaleRendererExport.h"
 #include "PaleRenderer/OpenGL/WindowOpenGL.h"
 
 namespace PaleRdr

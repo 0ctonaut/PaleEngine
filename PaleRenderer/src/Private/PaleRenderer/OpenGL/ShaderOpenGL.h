@@ -3,16 +3,6 @@
 
 namespace PaleRdr
 {
-    //namespace glm
-    //{
-    //    struct vec2;
-    //    struct vec3;
-    //    struct vec4;
-    //    struct mat2;
-    //    struct mat3;
-    //    struct mat4;
-    //}
-
     class CShaderOpenGL : public IShader
     {
     public:

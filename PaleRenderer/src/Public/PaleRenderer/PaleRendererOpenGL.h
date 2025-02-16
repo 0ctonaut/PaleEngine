@@ -1,4 +1,10 @@
 #pragma once
+// --- Core ---
+#include "PaleRenderer/Core/Log.h"
+#include "PaleRenderer/Core/Camera.h"
+#include "PaleRenderer/Core/PathManager.h"
+#include "PaleRenderer/Core/Application.h"
+
 // --- Mesh ---
 #include "PaleRenderer/Mesh/Sphere.h"
 #include "PaleRenderer/Mesh/Cube.h"
@@ -8,11 +14,6 @@
 // --- Material ---
 #include "PaleRenderer/Material/Shader.h"
 #include "PaleRenderer/Material/Texture.h"
-
-// --- Core ---
-#include "PaleRenderer/Core/Camera.h"
-#include "PaleRenderer/Core/PathManager.h"
-#include "PaleRenderer/Core/Application.h"
 
 // --- ECS ---
 #include "PaleRenderer/ECS/Scene.h"

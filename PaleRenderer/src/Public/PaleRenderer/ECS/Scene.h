@@ -6,7 +6,7 @@
 
 namespace PaleRdr
 {
-    class CShaderOpenGL;
+    class CFrameBufferOpenGL;
 
     struct SSceneLight
     {
@@ -35,12 +35,16 @@ namespace PaleRdr
         void __BeforeRender();
         void __OnRenderLight();
         void __OnRenderMeshRdr();
+        void __AfterRender();
 
     private:
         // Scene
         glm::vec4 m_BackgroundColor;
         PaleRdr::CCamera* m_pSceneCamera;
+
+        // --- need cleaning up every frame ---
         std::vector<SSceneLight> m_SceneLights;
+        // --- ---
 
         // ECS
         entt::registry m_Registry;

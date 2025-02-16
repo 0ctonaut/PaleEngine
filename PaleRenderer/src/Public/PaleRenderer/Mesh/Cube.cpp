@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "Cube.h"
+#include "PaleRenderer/Mesh/Cube.h"
 
 namespace PaleRdr
 {

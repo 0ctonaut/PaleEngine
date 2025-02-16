@@ -17,7 +17,7 @@ namespace PaleRdr
     {
         if (m_TextureMap.find(vType) == m_TextureMap.end())
         {
-            spdlog::warn("This material doesn't have type {} texture now", static_cast<int>(vType));
+            PALE_RDR_WARN("This material doesn't have type {} texture now", static_cast<int>(vType));
             m_TextureMap[vType] = std::vector<std::shared_ptr<ITexture>>();
         }
         return m_TextureMap[vType];

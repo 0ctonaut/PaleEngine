@@ -13,14 +13,14 @@ namespace PaleRdr
         m_pWindow = glfwCreateWindow(vWidth, vHeight, vName.c_str(), NULL, NULL);
         if (m_pWindow == NULL)
         {
-            spdlog::error("Failed to create GLFW window");
+            PALE_RDR_ERROR("Failed to create GLFW window");
             glfwTerminate();
         }
         glfwMakeContextCurrent(m_pWindow);
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
-            spdlog::error("Failed to initialize GLAD");
+            PALE_RDR_ERROR("Failed to initialize GLAD");
         }
 	}
     CWindowOpenGL::~CWindowOpenGL()

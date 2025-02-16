@@ -31,7 +31,7 @@ namespace PaleRdr
         }
         catch (std::ifstream::failure& e)
         {
-            spdlog::error("ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: {}", e.what());
+            PALE_RDR_ERROR("ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: {}", e.what());
         }
         const char* vShaderCode = vertexCode.c_str();
         const char* fShaderCode = fragmentCode.c_str();
@@ -129,7 +129,7 @@ namespace PaleRdr
             if (!success)
             {
                 glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                spdlog::error("ERROR::SHADER_COMPILATION_ERROR of type: {} {}", type, infoLog);
+                PALE_RDR_ERROR("ERROR::SHADER_COMPILATION_ERROR of type: {} {}", type, infoLog);
             }
         }
         else
@@ -138,7 +138,7 @@ namespace PaleRdr
             if (!success)
             {
                 glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                spdlog::error("ERROR::PROGRAM_LINKING_ERROR of type: {} {}", type, infoLog);
+                PALE_RDR_ERROR("ERROR::PROGRAM_LINKING_ERROR of type: {} {}", type, infoLog);
             }
         }
     }

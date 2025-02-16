@@ -49,4 +49,4 @@ Here are some model files:
   + My own formats to save...
     + [ ] Scene
     + [ ] Material
-  + [ ] memory leak detection
+  + [ ] performance & memory leak

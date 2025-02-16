@@ -4,8 +4,10 @@
 #include "PaleRenderer/ECS/TransformComp.h"
 #include "PaleRenderer/ECS/MeshRendererComp.h"
 #include "PaleRenderer/ECS/LightComp.h"
-#include "PaleRenderer/OpenGL/ShaderOpenGL.h"
 #include "PaleRenderer/Core/Application.h"
+#include "PaleRenderer/Mesh/Mesh.h"
+#include "PaleRenderer/Material/Material.h"
+#include "PaleRenderer/OpenGL/FrameBufferOpenGL.h"
 
 namespace PaleRdr
 {
@@ -42,6 +44,7 @@ namespace PaleRdr
         __BeforeRender();
         __OnRenderLight();
         __OnRenderMeshRdr();
+        __AfterRender();
         vFrameBuffer->unbind();
     }
 
@@ -149,5 +152,9 @@ namespace PaleRdr
                 glDrawElements(Mesh->getElementType(), Mesh->getIndiceSize(), GL_UNSIGNED_INT, 0);
             }
         }
+    }
+    void CScene::__AfterRender()
+    {
+        m_SceneLights.clear();
     }
 }

@@ -1,10 +1,7 @@
 #pragma once
-#include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 #include "PaleRenderer/Core/PaleRendererExport.h"
-#include "PaleRenderer/Core/Application.h"
 
 namespace PaleRdr
 {
@@ -36,6 +33,7 @@ namespace PaleRdr
         float Pitch;
 
         float MovementSpeed;
+        float SpeedAcc;
         float MouseSensitivity;
         float Zoom;
 
@@ -49,6 +47,7 @@ namespace PaleRdr
             WorldUp = up;
             Yaw = yaw;
             Pitch = pitch;
+            SpeedAcc = 1.0;
             updateCameraVectors();
         }
 
@@ -58,6 +57,8 @@ namespace PaleRdr
             WorldUp = glm::vec3(upX, upY, upZ);
             Yaw = yaw;
             Pitch = pitch;
+            SpeedAcc = 1.0;
+
             updateCameraVectors();
         }
 
@@ -87,7 +88,7 @@ namespace PaleRdr
         // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
         void ProcessKeyboard(ECameraMove direction, float deltaTime)
         {
-            float velocity = MovementSpeed * deltaTime;
+            float velocity = MovementSpeed * deltaTime * SpeedAcc;
             if (direction == ECameraMove::FORWARD)
                 Position += Front * velocity;
             else if (direction == ECameraMove::BACKWARD)
