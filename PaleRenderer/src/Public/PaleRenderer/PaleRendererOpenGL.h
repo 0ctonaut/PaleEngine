@@ -1,8 +1,17 @@
 #pragma once
-//
+// --- Mesh ---
+#include "PaleRenderer/Mesh/Sphere.h"
+#include "PaleRenderer/Mesh/Cube.h"
+#include "PaleRenderer/Mesh/ModelLoader.h"
+#include "PaleRenderer/Mesh/Mesh.h"
+
+// --- Material ---
+#include "PaleRenderer/Material/Shader.h"
+#include "PaleRenderer/Material/Texture.h"
+
+// --- Core ---
 #include "PaleRenderer/Core/Camera.h"
 #include "PaleRenderer/Core/PathManager.h"
-#include "PaleRenderer/Core/ModelLoader.h"
 #include "PaleRenderer/Core/Application.h"
 
 // --- ECS ---
@@ -13,14 +22,5 @@
 #include "PaleRenderer/ECS/LightComp.h"
 
 // --- OpenGL ---
-#include "OpenGL/PassOpenGL.h"
-#include "OpenGL/TextureOpenGL.h"
-#include "OpenGL/WindowOpenGL.h"
-#include "OpenGL/FrameBufferOpenGL.h"
-// ------
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "PaleRenderer/OpenGL/WindowOpenGL.h"
+#include "PaleRenderer/OpenGL/FrameBufferOpenGL.h"

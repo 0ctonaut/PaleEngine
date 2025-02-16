@@ -14,6 +14,7 @@ namespace PaleRdr
 		void OnResize(unsigned int vWidth, unsigned int vHeight);
 		unsigned int getColorBufferID() const { return m_ColorBufferID;	}
 		unsigned int getDepthBufferID() const { return m_DepthBufferID; }
+		unsigned int getDepthDisplayBufferID() const { return m_DepthDisplayBufferID; }
 
 	private:
 		void __resetColorBuffer(unsigned int vWidth, unsigned int vHeight);
@@ -22,5 +23,6 @@ namespace PaleRdr
 		unsigned int m_ID;
 		unsigned int m_ColorBufferID;
 		unsigned int m_DepthBufferID;
+		unsigned int m_DepthDisplayBufferID;
 	};
 }

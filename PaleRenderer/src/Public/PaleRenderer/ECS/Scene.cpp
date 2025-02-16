@@ -4,7 +4,7 @@
 #include "PaleRenderer/ECS/TransformComp.h"
 #include "PaleRenderer/ECS/MeshRendererComp.h"
 #include "PaleRenderer/ECS/LightComp.h"
-#include "PaleRenderer/OpenGL/PassOpenGL.h"
+#include "PaleRenderer/OpenGL/ShaderOpenGL.h"
 #include "PaleRenderer/Core/Application.h"
 
 namespace PaleRdr
@@ -72,41 +72,81 @@ namespace PaleRdr
     {
         for (auto& id : m_Entities)
         {
+
             auto* meshrdr = m_Registry.try_get<PaleRdr::SCompMeshRenderer>(id);
             auto* trans = m_Registry.try_get<PaleRdr::SCompTransform>(id);
 
-            meshrdr->_Pass.use();
-
-            glm::mat4 uProject = m_pSceneCamera->getProjectionMatrix();
-            glm::mat4 uView = m_pSceneCamera->getViewMatrix();
-            glm::mat4 uModel = trans->getTransfrom();
-
-            meshrdr->_Pass.setMat4("uProjection", uProject);
-            meshrdr->_Pass.setMat4("uView", uView);
-            meshrdr->_Pass.setMat4("uModel", uModel);
-            meshrdr->_Pass.setMat3("uNormalMatrix", glm::transpose(glm::inverse(glm::mat3(uModel))));
-
-
-            if (meshrdr->_bLit)
+            for (int i = 0; i < meshrdr->_Meshes.size(); ++i)
             {
-                for (int i = 0; i < m_SceneLights.size(); ++i)
+                std::shared_ptr<IMesh>& Mesh = meshrdr->_Meshes[i];
+                int MaterialIndex = Mesh->getMaterialIndex();
+                std::shared_ptr<IMaterial>& pMaterial = meshrdr->_Materials[MaterialIndex];
+                std::shared_ptr<IShader>& pShader = pMaterial->fetchShader();
+
+                pShader->use();
+
+                glm::mat4 uProject = m_pSceneCamera->getProjectionMatrix();
+                glm::mat4 uView = m_pSceneCamera->getViewMatrix();
+                glm::mat4 uModel = trans->getTransfrom();
+
+                pShader->setUniform("uProjection", uProject);
+                pShader->setUniform("uView", uView);
+                pShader->setUniform("uModel", uModel);
+                pShader->setUniform("uNormalMatrix", glm::transpose(glm::inverse(glm::mat3(uModel))));
+
+                int numTex = 0;
+
+                auto& diffuseTexture = pMaterial->fetchTextureOfType(ETexture::Diffuse);
+                for (int i = 0; i < diffuseTexture.size(); ++i)
                 {
-                    meshrdr->_Pass.setVec3("uLightPos", m_SceneLights[i]._Position);
-                    meshrdr->_Pass.setVec3("uLightColor", m_SceneLights[i]._Color);
-                    meshrdr->_Pass.setFloat("uLightIntensity", m_SceneLights[i]._Intensity);
+                    glActiveTexture(GL_TEXTURE0 + numTex);
+                    std::string name = std::format("tex_diffuse{}", i+1);
+                    pShader->setUniform(name, numTex++);
+	                glBindTexture(GL_TEXTURE_2D, diffuseTexture[i]->getID());
                 }
-                meshrdr->_Pass.setVec3("uViewPos", m_pSceneCamera->Position);
-            }
 
-            if (auto* light = m_Registry.try_get<PaleRdr::SCompPointLight>(id))
-            {
-                meshrdr->_Pass.setVec3("uLightColor", light->_Color);
-                meshrdr->_Pass.setFloat("uIntensity", light->_Intensity);
-            }
+                auto& specularTexture = pMaterial->fetchTextureOfType(ETexture::Specular);
+                for (int i = 0; i < specularTexture.size(); ++i)
+                {
+                    glActiveTexture(GL_TEXTURE0 + numTex);
+                    std::string name = std::format("tex_specular{}", i + 1);
+                    pShader->setUniform(name, numTex++);
+                    glBindTexture(GL_TEXTURE_2D, specularTexture[i]->getID());
+                }
 
-            for (auto& mesh : meshrdr->_Meshes)
-            {
-                mesh.draw(meshrdr->_Pass);
+                auto& normalTexture = pMaterial->fetchTextureOfType(ETexture::Normal);
+                for (int i = 0; i < normalTexture.size(); ++i)
+                {
+                    glActiveTexture(GL_TEXTURE0 + numTex);
+                    std::string name = std::format("tex_normal{}", i + 1);
+                    pShader->setUniform(name, numTex++);
+                    glBindTexture(GL_TEXTURE_2D, normalTexture[i]->getID());
+                }
+
+                glActiveTexture(GL_TEXTURE0);
+
+                pShader->setUniform("uUseTex", 1);
+                pShader->setUniform("uUseNormalMap", 1);
+
+                if (meshrdr->_bLit)
+                {
+                    for (int i = 0; i < m_SceneLights.size(); ++i)
+                    {
+                        pShader->setUniform("uLightPos", m_SceneLights[i]._Position);
+                        pShader->setUniform("uLightColor", m_SceneLights[i]._Color);
+                        pShader->setUniform("uLightIntensity", m_SceneLights[i]._Intensity);
+                    }
+                    pShader->setUniform("uViewPos", m_pSceneCamera->Position);
+                }
+
+                if (auto* light = m_Registry.try_get<PaleRdr::SCompPointLight>(id))
+                {
+                    pShader->setUniform("uLightColor", light->_Color);
+                    pShader->setUniform("uIntensity", light->_Intensity);
+                }
+
+                glBindVertexArray(Mesh->getVAO());
+                glDrawElements(Mesh->getElementType(), Mesh->getIndiceSize(), GL_UNSIGNED_INT, 0);
             }
         }
     }

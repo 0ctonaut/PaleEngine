@@ -81,10 +81,10 @@ void main()
     {
         viewDir = normalize(uViewPos - fs_in.FragPos);
     }
-    vec3 reflectDir = reflect(-lightDir, norm);  
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 halfVec = normalize(lightDir + viewDir);
+    float spec = pow(max(dot(norm, halfVec), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor * specularColor;
         
-    vec3 result = diffuse + specular;
+    vec3 result = ambient + diffuse + specular;
     FragColor = vec4(result, 1.0);
 }

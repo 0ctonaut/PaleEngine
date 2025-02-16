@@ -6,7 +6,7 @@
 
 namespace PaleRdr
 {
-    class CPassOpenGL;
+    class CShaderOpenGL;
 
     struct SSceneLight
     {

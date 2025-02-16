@@ -74,7 +74,7 @@ namespace PaleUI
 
     void CHierarchyPanel::OnUIRender(std::unordered_map<std::string, entt::entity>& vNames)
     {
-        ImGui::Begin("HierarchyPanel");
+        ImGui::Begin("Hierarchy");
         {
             static ImVector<ImGuiID> items;
             static ExampleSelectionWithDeletion selection;

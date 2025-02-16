@@ -1,9 +1,9 @@
 #include "stdafx.h"
-#include "PaleRenderer/OpenGL/PassOpenGL.h"
+#include "PaleRenderer/OpenGL/ShaderOpenGL.h"
 
 namespace PaleRdr
 {
-	CPassOpenGL::CPassOpenGL(const char* vertexPath, const char* fragmentPath)
+	CShaderOpenGL::CShaderOpenGL(const char* vertexPath, const char* fragmentPath)
     {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
@@ -31,7 +31,7 @@ namespace PaleRdr
         }
         catch (std::ifstream::failure& e)
         {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
+            spdlog::error("ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: {}", e.what());
         }
         const char* vShaderCode = vertexCode.c_str();
         const char* fShaderCode = fragmentCode.c_str();
@@ -59,22 +59,67 @@ namespace PaleRdr
 
     }
 
-    CPassOpenGL::CPassOpenGL(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) :
-        CPassOpenGL(vertexPath.string().c_str(), fragmentPath.string().c_str())
+    CShaderOpenGL::CShaderOpenGL(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath) :
+        CShaderOpenGL(vertexPath.string().c_str(), fragmentPath.string().c_str())
     {
     }
 
-    CPassOpenGL::CPassOpenGL(const CPassOpenGL& vOther)
+    CShaderOpenGL::CShaderOpenGL(const CShaderOpenGL& vOther)
     {
         ID = vOther.ID;
     }
 
-    CPassOpenGL::~CPassOpenGL()
+    CShaderOpenGL::~CShaderOpenGL()
     {
-        //glDeleteProgram(ID);
+        glDeleteProgram(ID);
     }
 
-    void CPassOpenGL::__checkCompileErrors(GLuint shader, std::string type)
+    void CShaderOpenGL::use() const
+    {
+        glUseProgram(ID);
+    }
+
+    void CShaderOpenGL::setUniform(const std::string& name, bool value) const {
+        glUniform1i(getUniformLocation(name), static_cast<int>(value));
+    }
+
+    void CShaderOpenGL::setUniform(const std::string& name, int value) const {
+        glUniform1i(getUniformLocation(name), value);
+    }
+
+    void CShaderOpenGL::setUniform(const std::string& name, unsigned int value) const {
+        glUniform1ui(getUniformLocation(name), value);
+    }
+
+    void CShaderOpenGL::setUniform(const std::string& name, float value) const {
+        glUniform1f(getUniformLocation(name), value);
+    }
+
+    void CShaderOpenGL::setUniform(const std::string& name, const glm::vec2& value) const {
+        glUniform2fv(getUniformLocation(name), 1, &value[0]);
+    }
+
+    void CShaderOpenGL::setUniform(const std::string& name, const glm::vec3& value) const {
+        glUniform3fv(getUniformLocation(name), 1, &value[0]);
+    }
+
+    void CShaderOpenGL::setUniform(const std::string& name, const glm::vec4& value) const {
+        glUniform4fv(getUniformLocation(name), 1, &value[0]);
+    }
+
+    void CShaderOpenGL::setUniform(const std::string& name, const glm::mat2& value) const {
+        glUniformMatrix2fv(getUniformLocation(name), 1, GL_FALSE, &value[0][0]);
+    }
+
+    void CShaderOpenGL::setUniform(const std::string& name, const glm::mat3& value) const {
+        glUniformMatrix3fv(getUniformLocation(name), 1, GL_FALSE, &value[0][0]);
+    }
+
+    void CShaderOpenGL::setUniform(const std::string& name, const glm::mat4& value) const {
+        glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &value[0][0]);
+    }
+
+    void CShaderOpenGL::__checkCompileErrors(GLuint shader, std::string type)
     {
         GLint success;
         GLchar infoLog[1024];
@@ -84,7 +129,7 @@ namespace PaleRdr
             if (!success)
             {
                 glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                spdlog::error("ERROR::SHADER_COMPILATION_ERROR of type: {} {}", type, infoLog);
             }
         }
         else
@@ -93,8 +138,12 @@ namespace PaleRdr
             if (!success)
             {
                 glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                spdlog::error("ERROR::PROGRAM_LINKING_ERROR of type: {} {}", type, infoLog);
             }
         }
+    }
+    int CShaderOpenGL::getUniformLocation(const std::string& name) const
+    {
+        return glGetUniformLocation(ID, name.c_str());
     }
 }
