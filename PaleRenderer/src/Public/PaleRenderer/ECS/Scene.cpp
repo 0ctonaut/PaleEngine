@@ -14,7 +14,7 @@ namespace PaleRdr
     CScene::CScene()
     {
         glEnable(GL_DEPTH_TEST);
-        m_BackgroundColor = glm::vec4(0.45f, 0.55f, 0.60f, 1.00f);
+        m_BackgroundColor = glm::vec4(0.2f, 0.2f, 0.2f, 1.00f);
         m_pSceneCamera = new CCamera(glm::vec3(0.0f, 0.0f, 10.0f));
     }
 
@@ -66,7 +66,7 @@ namespace PaleRdr
             if (auto* light = m_Registry.try_get<PaleRdr::SCompPointLight>(id))
             {
                 auto* trans = m_Registry.try_get<PaleRdr::SCompTransform>(id);
-                m_SceneLights.push_back({trans->_Position, light->_Color, light->_Intensity});
+                m_SceneLights.push_back({trans->_Position, light->_Color * 100.0f, light->_Intensity});
             }
         }
     }
@@ -75,9 +75,13 @@ namespace PaleRdr
     {
         for (auto& id : m_Entities)
         {
-
-            auto* meshrdr = m_Registry.try_get<PaleRdr::SCompMeshRenderer>(id);
             auto* trans = m_Registry.try_get<PaleRdr::SCompTransform>(id);
+            PALE_RDR_ASSERT(trans, "Entities must have a Transform!");
+            auto* meshrdr = m_Registry.try_get<PaleRdr::SCompMeshRenderer>(id);
+            if (meshrdr == nullptr)
+            {
+                continue;
+            }
 
             for (int i = 0; i < meshrdr->_Meshes.size(); ++i)
             {
@@ -98,46 +102,45 @@ namespace PaleRdr
                 pShader->setUniform("uNormalMatrix", glm::transpose(glm::inverse(glm::mat3(uModel))));
 
                 int numTex = 0;
+                auto bindTextures = [&numTex, &pShader, &pMaterial](ETexture vType, const std::string& uniformName) {
+                        if (pMaterial->hasTextureOfType(vType))
+                        {
+                            auto& textures = pMaterial->fetchTextureOfType(vType);
+                            for (size_t i = 0; i < textures.size(); ++i)
+                            {
+                                glActiveTexture(GL_TEXTURE0 + numTex);
+                                std::string name = std::format("{}{}", uniformName, i + 1);
+                                pShader->setUniform(name, numTex++);
+                                glBindTexture(GL_TEXTURE_2D, textures[i]->getID());
+                            }
+                        }
+                    };
 
-                auto& diffuseTexture = pMaterial->fetchTextureOfType(ETexture::Diffuse);
-                for (int i = 0; i < diffuseTexture.size(); ++i)
-                {
-                    glActiveTexture(GL_TEXTURE0 + numTex);
-                    std::string name = std::format("tex_diffuse{}", i+1);
-                    pShader->setUniform(name, numTex++);
-	                glBindTexture(GL_TEXTURE_2D, diffuseTexture[i]->getID());
-                }
-
-                auto& specularTexture = pMaterial->fetchTextureOfType(ETexture::Specular);
-                for (int i = 0; i < specularTexture.size(); ++i)
-                {
-                    glActiveTexture(GL_TEXTURE0 + numTex);
-                    std::string name = std::format("tex_specular{}", i + 1);
-                    pShader->setUniform(name, numTex++);
-                    glBindTexture(GL_TEXTURE_2D, specularTexture[i]->getID());
-                }
-
-                auto& normalTexture = pMaterial->fetchTextureOfType(ETexture::Normal);
-                for (int i = 0; i < normalTexture.size(); ++i)
-                {
-                    glActiveTexture(GL_TEXTURE0 + numTex);
-                    std::string name = std::format("tex_normal{}", i + 1);
-                    pShader->setUniform(name, numTex++);
-                    glBindTexture(GL_TEXTURE_2D, normalTexture[i]->getID());
-                }
+                bindTextures(ETexture::Diffuse, "tex_diffuse");
+                bindTextures(ETexture::Specular, "tex_specular");
+                bindTextures(ETexture::Albedo, "tex_albedo");
+                bindTextures(ETexture::Normal, "tex_normal");
+                bindTextures(ETexture::Metallic, "tex_metallic");
+                bindTextures(ETexture::Roughness, "tex_roughness");
+                bindTextures(ETexture::AO, "tex_ao");
 
                 glActiveTexture(GL_TEXTURE0);
 
-                pShader->setUniform("uUseTex", 1);
-                pShader->setUniform("uUseNormalMap", 1);
+                pShader->setUniform("uUseDiffuse", pMaterial->hasTextureOfType(ETexture::Diffuse));
+                pShader->setUniform("uUseSpecular", pMaterial->hasTextureOfType(ETexture::Specular));
+                pShader->setUniform("uUseAlbedo", pMaterial->hasTextureOfType(ETexture::Albedo));
+                pShader->setUniform("uUseNormal", pMaterial->hasTextureOfType(ETexture::Normal));
+                pShader->setUniform("uUseMetallic", pMaterial->hasTextureOfType(ETexture::Metallic));
+                pShader->setUniform("uUseRoughness", pMaterial->hasTextureOfType(ETexture::Roughness));
+                pShader->setUniform("uUseAO", pMaterial->hasTextureOfType(ETexture::AO));
 
                 if (meshrdr->_bLit)
                 {
                     for (int i = 0; i < m_SceneLights.size(); ++i)
                     {
-                        pShader->setUniform("uLightPos", m_SceneLights[i]._Position);
-                        pShader->setUniform("uLightColor", m_SceneLights[i]._Color);
-                        pShader->setUniform("uLightIntensity", m_SceneLights[i]._Intensity);
+                        pShader->setUniform("uLightPos[" + std::to_string(i) + "]", m_SceneLights[i]._Position);
+                        pShader->setUniform("uLightColor[" + std::to_string(i) + "]", m_SceneLights[i]._Color);
+                        pShader->setUniform("uLightIntensity[" + std::to_string(i) + "]", m_SceneLights[i]._Intensity);
                     }
                     pShader->setUniform("uViewPos", m_pSceneCamera->Position);
                 }

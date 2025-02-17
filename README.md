@@ -18,35 +18,33 @@ cmake -S . -Bbuild
 Here are some model files:
 + [backpack](https://learnopengl.com/data/models/backpack.zip)
 
-## Interface snapshot 250213
+## Interface snapshot 250217
 
-![](github/interface250213.png)
+![](github/interface250217.png)
 
 
 ## TODO List
 
 + rendering
   + [X] blinn-phong
-  + [ ] multi lights
-  + [ ] PBR
-  + [ ] PCF & PCSS
+  + [X] PBR
   + [ ] IBL
   + [ ] OIT
+  + [ ] PCF & PCSS
   + [ ] Deferred shading
-
-+ Model loader
-  + [x] wavefront
-  + [ ] gltf
-  + [ ] fbx
+  + [ ] multi lights
 
 + GUI
   + [ ] log console
   + [ ] Assets brower
   + [ ] ImGUI gizmo
 
++ Profiler
+  + [ ] performance
+  + [ ] memory leak
+
 + Other
   + [ ] Input event system
   + My own formats to save...
     + [ ] Scene
     + [ ] Material
-  + [ ] performance & memory leak

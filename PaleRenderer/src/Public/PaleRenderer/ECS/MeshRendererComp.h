@@ -9,11 +9,19 @@ namespace PaleRdr
     struct SCompMeshRenderer
     {
         SCompMeshRenderer(const std::vector<std::shared_ptr<IMesh>>& vMeshes,
-            const std::shared_ptr<IShader> vShader,
+            const std::shared_ptr<IShader>& vShader,
             bool vLit = true) :
             _Meshes(vMeshes), _bLit(vLit)
         {
             _Materials[0] = IMaterial::Create(vShader);
+        };
+
+        SCompMeshRenderer(const std::vector<std::shared_ptr<IMesh>>& vMeshes,
+            const std::shared_ptr<IMaterial>& vMaterial,
+            bool vLit = true) :
+            _Meshes(vMeshes), _bLit(vLit)
+        {
+            _Materials[0] = vMaterial;
         };
 
         SCompMeshRenderer(const std::vector<std::shared_ptr<IMesh>>& vMeshes,

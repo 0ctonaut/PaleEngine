@@ -21,7 +21,8 @@ int main(int, char**)
 
     // --- scene ---
     PaleRdr::CScene scene;
-    std::shared_ptr<PaleRdr::IShader> pShaderModel = PaleRdr::IShader::Create(
+    auto& Registry = scene.fetchRegistry();
+    std::shared_ptr<PaleRdr::IShader> pShaderBlinnPhong = PaleRdr::IShader::Create(
         CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong_normalmapping.vert",
 		CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong_normalmapping.frag");
 	
@@ -29,26 +30,79 @@ int main(int, char**)
         CPathManager::getInstance().getRootDir() / "Assets/Shaders/light_point.vert",
         CPathManager::getInstance().getRootDir() / "Assets/Shaders/light_point.frag");
 
-    PaleRdr::CModelLoader ourModel(CPathManager::getInstance().getRootDir() / "Assets/Models/backpack/backpack.obj");
+    std::shared_ptr<PaleRdr::IShader> pShaderPBR = PaleRdr::IShader::Create(
+        CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_pbr.vert",
+        CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_pbr.frag");
+
+    std::shared_ptr<PaleRdr::IMaterial> pMaterialRustediron = PaleRdr::IMaterial::Create(pShaderPBR);
+    auto addTexture = [&pMaterialRustediron](const std::filesystem::path& vPath, PaleRdr::ETexture vType) {
+        std::shared_ptr<PaleRdr::ITexture> texture = PaleRdr::ITexture::Create(vPath, vType);
+        pMaterialRustediron->addTextureOfType(vType, texture);
+        };
+
+    addTexture(CPathManager::getInstance().getRootDir() / "Assets/Models/rustediron/albedo.png", PaleRdr::ETexture::Albedo);
+    addTexture(CPathManager::getInstance().getRootDir() / "Assets/Models/rustediron/normal.png", PaleRdr::ETexture::Normal);
+    addTexture(CPathManager::getInstance().getRootDir() / "Assets/Models/rustediron/metallic.png", PaleRdr::ETexture::Metallic);
+    addTexture(CPathManager::getInstance().getRootDir() / "Assets/Models/rustediron/roughness.png", PaleRdr::ETexture::Roughness);
+    addTexture(CPathManager::getInstance().getRootDir() / "Assets/Models/rustediron/ao.png", PaleRdr::ETexture::AO);
+
+    // ---
     
-    auto& Registry = scene.fetchRegistry();
-    entt::entity entity1 = scene.addEntity("backpack",
-        glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-    
-    std::unordered_map<int, std::shared_ptr<PaleRdr::IMaterial>> Materials = ourModel.getMaterials();
-    for (auto& mat : Materials)
+    //PaleRdr::CModelLoader ourModel(CPathManager::getInstance().getRootDir() / "Assets/Models/backpack/backpack.obj");
+    //entt::entity entity1 = scene.addEntity("backpack",
+    //    glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+    //
+    //std::unordered_map<int, std::shared_ptr<PaleRdr::IMaterial>> Materials = ourModel.getMaterials();
+    //for (auto& mat : Materials)
+    //{
+    //    mat.second->setShader(pShaderBlinnPhong);
+    //}
+
+    //Registry.emplace<PaleRdr::SCompMeshRenderer>(entity1, 
+    //    ourModel.getMeshes(), Materials, true);
+
+    // --- 
+
+    for (int i = -2; i <= 2; ++i)
     {
-        mat.second->setShader(pShaderModel);
+        for (int j = -2; j <= 2; ++j)
+        {
+            entt::entity entity = scene.addEntity("ball",
+                glm::vec3(i * 3, j * 3, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+
+            Registry.emplace<PaleRdr::SCompMeshRenderer>(entity,
+                PaleRdr::Sphere::getMeshes(), pMaterialRustediron, true);
+        }
     }
 
-    Registry.emplace<PaleRdr::SCompMeshRenderer>(entity1, 
-        ourModel.getMeshes(), Materials, true);
+    // ---
 
     entt::entity light1 = scene.addEntity("light1", 
-        glm::vec3(0, 0, 1.6), glm::vec3(0, 0, 0), glm::vec3(0.05, 0.05, 0.05));
+        glm::vec3(5, 5, 10), glm::vec3(0, 0, 0), glm::vec3(0.05, 0.05, 0.05));
     Registry.emplace<PaleRdr::SCompMeshRenderer>(light1, 
         PaleRdr::Sphere::getMeshes(), pShaderLight, false);
     Registry.emplace<PaleRdr::SCompPointLight>(light1, glm::vec3(1, 1, 1), 1.0f);
+
+
+    entt::entity light2 = scene.addEntity("light2",
+        glm::vec3(-5, 5, 10), glm::vec3(0, 0, 0), glm::vec3(0.05, 0.05, 0.05));
+    Registry.emplace<PaleRdr::SCompMeshRenderer>(light2,
+        PaleRdr::Sphere::getMeshes(), pShaderLight, false);
+    Registry.emplace<PaleRdr::SCompPointLight>(light2, glm::vec3(1, 1, 1), 1.0f);
+
+
+    entt::entity light3 = scene.addEntity("light3",
+        glm::vec3(-5, -5, 10), glm::vec3(0, 0, 0), glm::vec3(0.05, 0.05, 0.05));
+    Registry.emplace<PaleRdr::SCompMeshRenderer>(light3,
+        PaleRdr::Sphere::getMeshes(), pShaderLight, false);
+    Registry.emplace<PaleRdr::SCompPointLight>(light3, glm::vec3(1, 1, 1), 1.0f);
+
+
+    entt::entity light4 = scene.addEntity("light4",
+        glm::vec3(5, -5, 10), glm::vec3(0, 0, 0), glm::vec3(0.05, 0.05, 0.05));
+    Registry.emplace<PaleRdr::SCompMeshRenderer>(light4,
+        PaleRdr::Sphere::getMeshes(), pShaderLight, false);
+    Registry.emplace<PaleRdr::SCompPointLight>(light4, glm::vec3(1, 1, 1), 1.0f);
 
     // --- ---
 

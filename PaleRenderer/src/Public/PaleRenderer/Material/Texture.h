@@ -7,7 +7,11 @@ namespace PaleRdr
 	{
 		Diffuse,
 		Specular,
-		Normal
+		Albedo,
+		Normal,
+		Metallic,
+		Roughness,
+		AO
 	};
 
 	class PALE_API ITexture

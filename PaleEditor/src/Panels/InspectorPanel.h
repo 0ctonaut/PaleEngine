@@ -16,6 +16,7 @@ namespace PaleUI
         void __renderUICompName(entt::registry& vRegistry, const entt::entity& vId);
         void __renderUICompTrans(entt::registry& vRegistry, const entt::entity& vId);
         void __renderUICompLight(entt::registry& vRegistry, const entt::entity& vId);
+        void __renderUICompMeshRdr(entt::registry& vRegistry, const entt::entity& vId);
         void __drawVec3Control(
             const std::string& vLabel,
             glm::vec3& vValues,

@@ -13,6 +13,11 @@ namespace PaleRdr
         return std::make_shared<CMaterial>(vShader);
     }
 
+    bool CMaterial::hasTextureOfType(ETexture vType)
+    {
+        return (m_TextureMap.find(vType) != m_TextureMap.end());
+    }
+
     std::vector<std::shared_ptr<ITexture>>& CMaterial::fetchTextureOfType(ETexture vType)
     {
         if (m_TextureMap.find(vType) == m_TextureMap.end())
