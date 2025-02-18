@@ -33,9 +33,9 @@ namespace PaleRdr
 			{
 				float xSegment = (float)x / (float)X_SEGMENTS;
 				float ySegment = (float)y / (float)Y_SEGMENTS;
-				float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
-				float yPos = std::cos(ySegment * PI);
-				float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI);
+				float xPos = std::cos(xSegment * 2.0f * PI) * std::sin(ySegment * PI) / 2;
+				float yPos = std::cos(ySegment * PI) / 2;
+				float zPos = std::sin(xSegment * 2.0f * PI) * std::sin(ySegment * PI) / 2;
 
 				m_Position.push_back(glm::vec3(xPos, yPos, zPos));
 				m_TexCoord.push_back(glm::vec2(xSegment, ySegment));

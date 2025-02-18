@@ -33,6 +33,7 @@ namespace PaleRdr
 
     private:
         void __BeforeRender();
+        void __OnRenderSkybox();
         void __OnRenderLight();
         void __OnRenderMeshRdr();
         void __AfterRender();

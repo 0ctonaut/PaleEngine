@@ -4,17 +4,21 @@
 #include "PaleRenderer/ECS/TransformComp.h"
 #include "PaleRenderer/ECS/MeshRendererComp.h"
 #include "PaleRenderer/ECS/LightComp.h"
+#include "PaleRenderer/ECS/CompSkybox.h"
+
 #include "PaleRenderer/Core/Application.h"
 #include "PaleRenderer/Mesh/Mesh.h"
 #include "PaleRenderer/Material/Material.h"
 #include "PaleRenderer/OpenGL/FrameBufferOpenGL.h"
+
+#include "PaleRenderer/Mesh/Sphere.h"
 
 namespace PaleRdr
 {
     CScene::CScene()
     {
         glEnable(GL_DEPTH_TEST);
-        m_BackgroundColor = glm::vec4(0.2f, 0.2f, 0.2f, 1.00f);
+        m_BackgroundColor = glm::vec4(0.05f, 0.05f, 0.05f, 1.00f);
         m_pSceneCamera = new CCamera(glm::vec3(0.0f, 0.0f, 10.0f));
     }
 
@@ -44,6 +48,7 @@ namespace PaleRdr
         __BeforeRender();
         __OnRenderLight();
         __OnRenderMeshRdr();
+        __OnRenderSkybox();
         __AfterRender();
         vFrameBuffer->unbind();
     }
@@ -57,6 +62,38 @@ namespace PaleRdr
             m_BackgroundColor.w
         );
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
+    void CScene::__OnRenderSkybox()
+    {
+        for (auto& id : m_Entities)
+        {
+            if (auto* skybox = m_Registry.try_get<PaleRdr::SCompSkybox>(id))
+            {
+                std::shared_ptr<IMesh>& pMesh = skybox->_SkyboxMesh;
+                std::shared_ptr<ITexture>& pTexture = skybox->_SkyboxTexture;
+                std::shared_ptr<IShader>& pShader = skybox->_SkyboxShader;
+
+                pShader->use();
+                glm::mat4 uView = glm::mat4(glm::mat3(m_pSceneCamera->getViewMatrix()));
+                glm::mat4 uProject = m_pSceneCamera->getProjectionMatrix();
+                auto* trans = m_Registry.try_get<PaleRdr::SCompTransform>(id);
+                glm::mat4 uModel = trans->getTransfrom();
+
+                pShader->setUniform("uView", uView);
+                pShader->setUniform("uProjection", uProject);
+                pShader->setUniform("uModel", uModel);
+
+                glBindVertexArray(pMesh->getVAO());
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_CUBE_MAP, pTexture->getID());
+                pShader->setUniform("skybox", static_cast<int>(0));
+                glDepthFunc(GL_LEQUAL); // Default value of depth buffer is 1.0f
+                glDrawElements(pMesh->getElementType(), pMesh->getIndiceSize(), GL_UNSIGNED_INT, 0);
+                glDepthFunc(GL_LESS);
+                glBindVertexArray(0);
+            }
+        }
     }
 
     void CScene::__OnRenderLight()
@@ -123,6 +160,7 @@ namespace PaleRdr
                 bindTextures(ETexture::Metallic, "tex_metallic");
                 bindTextures(ETexture::Roughness, "tex_roughness");
                 bindTextures(ETexture::AO, "tex_ao");
+                bindTextures(ETexture::Skybox, "tex_skybox");
 
                 glActiveTexture(GL_TEXTURE0);
 

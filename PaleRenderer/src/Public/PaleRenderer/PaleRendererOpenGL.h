@@ -21,6 +21,7 @@
 #include "PaleRenderer/ECS/TransformComp.h"
 #include "PaleRenderer/ECS/MeshRendererComp.h"
 #include "PaleRenderer/ECS/LightComp.h"
+#include "PaleRenderer/ECS/CompSkybox.h"
 
 // --- OpenGL ---
 #include "PaleRenderer/OpenGL/WindowOpenGL.h"

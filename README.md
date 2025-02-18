@@ -16,11 +16,13 @@ cmake -S . -Bbuild
 ```
 
 Here are some model files:
+
++ [skybox](https://learnopengl-cn.github.io/data/skybox.rar)
 + [backpack](https://learnopengl.com/data/models/backpack.zip)
 
-## Interface snapshot 250217
+## Interface snapshot 250218
 
-![](github/interface250217.png)
+![](github/interface250218.png)
 
 
 ## TODO List
@@ -29,6 +31,7 @@ Here are some model files:
   + [X] blinn-phong
   + [X] PBR
   + [ ] IBL
+    + [X] skybox
   + [ ] OIT
   + [ ] PCF & PCSS
   + [ ] Deferred shading

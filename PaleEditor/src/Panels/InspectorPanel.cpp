@@ -90,11 +90,16 @@ namespace PaleUI
 							}
 						};
 
-						DisplayTextureButton("Albedo", it->second->fetchTextureOfType(PaleRdr::ETexture::Albedo)[0]->getID(), imageSize);
-						DisplayTextureButton("Normal", it->second->fetchTextureOfType(PaleRdr::ETexture::Normal)[0]->getID(), imageSize);
-						DisplayTextureButton("Metallic", it->second->fetchTextureOfType(PaleRdr::ETexture::Metallic)[0]->getID(), imageSize);
-						DisplayTextureButton("Roughness", it->second->fetchTextureOfType(PaleRdr::ETexture::Roughness)[0]->getID(), imageSize);
-						DisplayTextureButton("AO", it->second->fetchTextureOfType(PaleRdr::ETexture::AO)[0]->getID(), imageSize);
+						if(it->second->hasTextureOfType(PaleRdr::ETexture::Albedo))
+							DisplayTextureButton("Albedo", it->second->fetchTextureOfType(PaleRdr::ETexture::Albedo)[0]->getID(), imageSize);
+						if (it->second->hasTextureOfType(PaleRdr::ETexture::Normal))
+							DisplayTextureButton("Normal", it->second->fetchTextureOfType(PaleRdr::ETexture::Normal)[0]->getID(), imageSize);
+						if (it->second->hasTextureOfType(PaleRdr::ETexture::Metallic))
+							DisplayTextureButton("Metallic", it->second->fetchTextureOfType(PaleRdr::ETexture::Metallic)[0]->getID(), imageSize);
+						if (it->second->hasTextureOfType(PaleRdr::ETexture::Roughness))
+							DisplayTextureButton("Roughness", it->second->fetchTextureOfType(PaleRdr::ETexture::Roughness)[0]->getID(), imageSize);
+						if (it->second->hasTextureOfType(PaleRdr::ETexture::AO))
+							DisplayTextureButton("AO", it->second->fetchTextureOfType(PaleRdr::ETexture::AO)[0]->getID(), imageSize);
 					}
 					ImGui::TreePop();
 				}
