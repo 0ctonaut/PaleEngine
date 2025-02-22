@@ -30,126 +30,203 @@ int main(int, char**)
             vMat->addTextureOfType(vType, texture);
         };
 
-    // ---
-    
-    //std::shared_ptr<PaleRdr::IShader> pShaderBlinnPhong = PaleRdr::IShader::Create(
-    //    CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong_normalmapping.vert",
-    //    CPathManager::getInstance().getRootDir() / "Assets/Shaders/model_blinnphong_normalmapping.frag");
-
-    //PaleRdr::CModelLoader ourModel(CPathManager::getInstance().getRootDir() / "Assets/Models/backpack/backpack.obj");
-    //entt::entity entity1 = scene.addEntity("backpack",
-    //    glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-    //
-    //std::unordered_map<int, std::shared_ptr<PaleRdr::IMaterial>> Materials = ourModel.getMaterials();
-    //for (auto& mat : Materials)
-    //{
-    //    mat.second->setShader(pShaderBlinnPhong);
-    //}
-
-    //Registry.emplace<PaleRdr::SCompMeshRenderer>(entity1, 
-    //    ourModel.getMeshes(), Materials, true);
-
     // --- skybox ---
+
 	std::vector<std::filesystem::path> skyboxFaces
 	{
-		CPathManager::getInstance().getRootDir() / "Assets/Models/skybox/right.jpg",
-		CPathManager::getInstance().getRootDir() / "Assets/Models/skybox/left.jpg",
-		CPathManager::getInstance().getRootDir() / "Assets/Models/skybox/top.jpg",
-		CPathManager::getInstance().getRootDir() / "Assets/Models/skybox/bottom.jpg",
-		CPathManager::getInstance().getRootDir() / "Assets/Models/skybox/front.jpg",
-		CPathManager::getInstance().getRootDir() / "Assets/Models/skybox/back.jpg"
+		CPathManager::getInstance().getRootDir() / "Assets/textures/skybox/right.jpg",
+		CPathManager::getInstance().getRootDir() / "Assets/textures/skybox/left.jpg",
+		CPathManager::getInstance().getRootDir() / "Assets/textures/skybox/top.jpg",
+		CPathManager::getInstance().getRootDir() / "Assets/textures/skybox/bottom.jpg",
+		CPathManager::getInstance().getRootDir() / "Assets/textures/skybox/front.jpg",
+		CPathManager::getInstance().getRootDir() / "Assets/textures/skybox/back.jpg"
 	};
 
-	std::shared_ptr<PaleRdr::ITexture> pTextureSkybox = PaleRdr::ITexture::Create(skyboxFaces, PaleRdr::ETexture::Skybox);
-	{
-	    std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
-		    CPathManager::getInstance().getRootDir() / "Assets/Shaders/skybox.vert",
-		    CPathManager::getInstance().getRootDir() / "Assets/Shaders/skybox.frag");
+	std::shared_ptr<PaleRdr::ITexture> pTextureOldSkybox = PaleRdr::ITexture::Create(skyboxFaces, PaleRdr::ETexture::Skybox);
+    std::shared_ptr<PaleRdr::ITexture> pTextureSkybox = PaleRdr::ITexture::Create(
+        CPathManager::getInstance().getRootDir() / "Assets/textures/hdr/newport_loft.hdr",
+        PaleRdr::ETexture::Skybox, GL_RGB32F);
+    std::shared_ptr<PaleRdr::ITexture> pTextureIrradiance = PaleRdr::ITexture::CreateIrradianceMap(
+        pTextureSkybox, 32, 32
+    );
+
+    std::shared_ptr<PaleRdr::ITexture> pTexturePrefilterMap = PaleRdr::ITexture::CreatePreFilterMap(
+        pTextureSkybox, 128, 128
+    );
+
+    std::shared_ptr<PaleRdr::ITexture> pTextureBRDFLUT = PaleRdr::ITexture::CreateBRDFLUT(
+        512, 512
+    );
+
+    {
 		entt::entity entity = scene.addEntity("skybox",
 			glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
 
-		Registry.emplace<PaleRdr::SCompSkybox>(entity,
-			PaleRdr::Cube::getMeshes()[0], pTextureSkybox, pShader);
+        std::shared_ptr<PaleRdr::IShader> pShaderSkybox = PaleRdr::IShader::Create(
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/skybox/skybox.vert",
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/skybox/skybox.frag");
+		Registry.emplace<PaleRdr::SCompSkybox>(entity, PaleRdr::Cube::getMeshes()[0], pShaderSkybox, 
+            pTextureSkybox, pTextureIrradiance, pTexturePrefilterMap, pTextureBRDFLUT);
 	}
 
     // --- meshes ---
-    {
-        std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/Test/model.vert",
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/Test/model.frag");
-        entt::entity entity = scene.addEntity("sphere",
-            glm::vec3(-2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity,
-            PaleRdr::Sphere::getMeshes(), pShader, true);
-    }
+    float gap = 1.5f;
 
     {
         std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/Test/model_normal.vert",
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/Test/model_normal.frag");
-        entt::entity entity = scene.addEntity("sphere_normal",
-            glm::vec3(-1, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity,
-            PaleRdr::Sphere::getMeshes(), pShader, true);
-    }
-
-    {
-        std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/Model/model_pbr.vert",
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/Model/model_pbr.frag");
-
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Test/model.vert",
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Test/model.frag");
         std::shared_ptr<PaleRdr::IMaterial> pMaterial = PaleRdr::IMaterial::Create(pShader);
 
-        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/Models/rustediron/albedo.png", PaleRdr::ETexture::Albedo);
-        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/Models/rustediron/normal.png", PaleRdr::ETexture::Normal);
-        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/Models/rustediron/metallic.png", PaleRdr::ETexture::Metallic);
-        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/Models/rustediron/roughness.png", PaleRdr::ETexture::Roughness);
-        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/Models/rustediron/ao.png", PaleRdr::ETexture::AO);
-
-		entt::entity entity = scene.addEntity("sphere_rust",
-			glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-
-		Registry.emplace<PaleRdr::SCompMeshRenderer>(entity,
-			PaleRdr::Sphere::getMeshes(), pMaterial, true);
+        entt::entity entity = scene.addEntity("sphere", gap * glm::vec3(-2, 3, -2), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity, PaleRdr::Sphere::getMeshes(), pMaterial, true);
     }
 
     {
         std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/Model/model_skybox_refract.vert",
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/Model/model_skybox_refract.frag");
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Test/model_normal.vert",
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Test/model_normal.frag");
+
+        entt::entity entity = scene.addEntity("sphere_normal", gap * glm::vec3(-2, 3, -1), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity, PaleRdr::Sphere::getMeshes(), pShader, true);
+    }
+
+    {
+        std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_skybox_refract.vert",
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_skybox_refract.frag");
 
         std::shared_ptr<PaleRdr::IMaterial> pMaterial = PaleRdr::IMaterial::Create(pShader);
 
         pMaterial->addTextureOfType(PaleRdr::ETexture::Skybox, pTextureSkybox);
 
-        entt::entity entity = scene.addEntity("sphere_skybox_refract",
-            glm::vec3(1, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity,
-            PaleRdr::Sphere::getMeshes(), pShader, true);
+        entt::entity entity = scene.addEntity("sphere_skybox_refract", gap * glm::vec3(-2, 3, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity, PaleRdr::Sphere::getMeshes(), pMaterial, true);
     }
 
     {
         std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/Model/model_skybox_reflect.vert",
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/Model/model_skybox_reflect.frag");
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_skybox_reflect.vert",
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_skybox_reflect.frag");
 
         std::shared_ptr<PaleRdr::IMaterial> pMaterial = PaleRdr::IMaterial::Create(pShader);
 
         pMaterial->addTextureOfType(PaleRdr::ETexture::Skybox, pTextureSkybox);
 
-        entt::entity entity = scene.addEntity("sphere_skybox_reflect",
-            glm::vec3(2, 0, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
-        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity,
-            PaleRdr::Sphere::getMeshes(), pShader, true);
+        entt::entity entity = scene.addEntity("sphere_skybox_reflect", gap * glm::vec3(-2, 3, 1), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity, PaleRdr::Sphere::getMeshes(), pMaterial, true);
+    }
+    {
+        std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_pbr.vert",
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_pbr.frag");
+
+        std::shared_ptr<PaleRdr::IMaterial> pMaterial = PaleRdr::IMaterial::Create(pShader);
+
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/rusted_iron/albedo.png", PaleRdr::ETexture::Albedo);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/rusted_iron/normal.png", PaleRdr::ETexture::Normal);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/rusted_iron/metallic.png", PaleRdr::ETexture::Metallic);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/rusted_iron/roughness.png", PaleRdr::ETexture::Roughness);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/rusted_iron/ao.png", PaleRdr::ETexture::AO);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::IrradianceMap, pTextureIrradiance);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::PreFilterMap, pTexturePrefilterMap);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::BRDFLUT, pTextureBRDFLUT);
+
+		entt::entity entity = scene.addEntity("sphere_rust", gap * glm::vec3(-2, 2, -2), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+
+		Registry.emplace<PaleRdr::SCompMeshRenderer>(entity, PaleRdr::Sphere::getMeshes(), pMaterial, true);
     }
 
+    {
+        std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_pbr.vert",
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_pbr.frag");
+
+        std::shared_ptr<PaleRdr::IMaterial> pMaterial = PaleRdr::IMaterial::Create(pShader);
+
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/gold/albedo.png", PaleRdr::ETexture::Albedo);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/gold/normal.png", PaleRdr::ETexture::Normal);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/gold/metallic.png", PaleRdr::ETexture::Metallic);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/gold/roughness.png", PaleRdr::ETexture::Roughness);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/gold/ao.png", PaleRdr::ETexture::AO);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::IrradianceMap, pTextureIrradiance);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::PreFilterMap, pTexturePrefilterMap);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::BRDFLUT, pTextureBRDFLUT);
+
+        entt::entity entity = scene.addEntity("sphere_gold", gap * glm::vec3(-2, 2, -1), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+
+        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity, PaleRdr::Sphere::getMeshes(), pMaterial, true);
+    }
+
+    {
+        std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_pbr.vert",
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_pbr.frag");
+
+        std::shared_ptr<PaleRdr::IMaterial> pMaterial = PaleRdr::IMaterial::Create(pShader);
+
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/grass/albedo.png", PaleRdr::ETexture::Albedo);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/grass/normal.png", PaleRdr::ETexture::Normal);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/grass/metallic.png", PaleRdr::ETexture::Metallic);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/grass/roughness.png", PaleRdr::ETexture::Roughness);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/grass/ao.png", PaleRdr::ETexture::AO);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::IrradianceMap, pTextureIrradiance);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::PreFilterMap, pTexturePrefilterMap);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::BRDFLUT, pTextureBRDFLUT);
+
+        entt::entity entity = scene.addEntity("sphere_grass", gap * glm::vec3(-2, 2, 0), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+
+        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity, PaleRdr::Sphere::getMeshes(), pMaterial, true);
+    }
+
+    {
+        std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_pbr.vert",
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_pbr.frag");
+
+        std::shared_ptr<PaleRdr::IMaterial> pMaterial = PaleRdr::IMaterial::Create(pShader);
+
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/plastic/albedo.png", PaleRdr::ETexture::Albedo);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/plastic/normal.png", PaleRdr::ETexture::Normal);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/plastic/metallic.png", PaleRdr::ETexture::Metallic);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/plastic/roughness.png", PaleRdr::ETexture::Roughness);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/plastic/ao.png", PaleRdr::ETexture::AO);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::IrradianceMap, pTextureIrradiance);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::PreFilterMap, pTexturePrefilterMap);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::BRDFLUT, pTextureBRDFLUT);
+
+        entt::entity entity = scene.addEntity("sphere_plastic", gap * glm::vec3(-2, 2, 1), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+
+        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity, PaleRdr::Sphere::getMeshes(), pMaterial, true);
+    }
+
+    {
+        std::shared_ptr<PaleRdr::IShader> pShader = PaleRdr::IShader::Create(
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_pbr.vert",
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/Model/model_pbr.frag");
+
+        std::shared_ptr<PaleRdr::IMaterial> pMaterial = PaleRdr::IMaterial::Create(pShader);
+
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/wall/albedo.png", PaleRdr::ETexture::Albedo);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/wall/normal.png", PaleRdr::ETexture::Normal);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/wall/metallic.png", PaleRdr::ETexture::Metallic);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/wall/roughness.png", PaleRdr::ETexture::Roughness);
+        addTexture(pMaterial, CPathManager::getInstance().getRootDir() / "Assets/textures/pbr/wall/ao.png", PaleRdr::ETexture::AO);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::IrradianceMap, pTextureIrradiance);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::PreFilterMap, pTexturePrefilterMap);
+        pMaterial->addTextureOfType(PaleRdr::ETexture::BRDFLUT, pTextureBRDFLUT);
+
+        entt::entity entity = scene.addEntity("sphere_wall", gap * glm::vec3(-2, 2, 2), glm::vec3(0, 0, 0), glm::vec3(1, 1, 1));
+
+        Registry.emplace<PaleRdr::SCompMeshRenderer>(entity, PaleRdr::Sphere::getMeshes(), pMaterial, true);
+    }
 
 
     // --- lights ---
     {
         std::shared_ptr<PaleRdr::IShader> pShaderLight = PaleRdr::IShader::Create(
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/light_point.vert",
-            CPathManager::getInstance().getRootDir() / "Assets/Shaders/light_point.frag");
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/light_point.vert",
+            CPathManager::getInstance().getRootDir() / "Assets/shaders/light_point.frag");
 
         std::vector<glm::vec3> lightPositions = {
             glm::vec3(5, 5, 10),
@@ -160,10 +237,8 @@ int main(int, char**)
 
         for (int i = 0; i < lightPositions.size(); ++i)
         {
-            entt::entity light = scene.addEntity(std::format("light{}", i),
-                lightPositions[i], glm::vec3(0, 0, 0), glm::vec3(0.05, 0.05, 0.05));
-            Registry.emplace<PaleRdr::SCompMeshRenderer>(light,
-                PaleRdr::Sphere::getMeshes(), pShaderLight, false);
+            entt::entity light = scene.addEntity(std::format("light{}", i), lightPositions[i], glm::vec3(0, 0, 0), glm::vec3(0.05, 0.05, 0.05));
+            Registry.emplace<PaleRdr::SCompMeshRenderer>(light, PaleRdr::Sphere::getMeshes(), pShaderLight, false);
             Registry.emplace<PaleRdr::SCompPointLight>(light, glm::vec3(1, 1, 1), 1.0f);
         }
     }

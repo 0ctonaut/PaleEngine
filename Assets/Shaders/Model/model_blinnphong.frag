@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 out vec4 FragColor;
 
 in VS_OUT {
@@ -12,7 +12,6 @@ uniform vec3 uViewPos;
 uniform vec3 uLightColor;
 uniform float uLightIntensity;
 
-uniform bool uUseTex;
 uniform sampler2D tex_diffuse1;
 uniform sampler2D tex_specular1;
 
@@ -22,18 +21,12 @@ void main()
     vec3 norm = normalize(fs_in.Normal);
     vec3 diffuseColor;
     vec3 specularColor;
-    if(uUseTex)
-    {
-        vec4 texDiffuse = texture(tex_diffuse1, fs_in.TexCoords);
-        diffuseColor = vec3(texDiffuse);
-        vec4 texSpecular = texture(tex_specular1, fs_in.TexCoords);
-        specularColor = vec3(texSpecular);
-    }
-    else
-    {
-        diffuseColor = vec3(0.5);
-        specularColor = vec3(0.5);
-    }
+
+    vec4 texDiffuse = texture(tex_diffuse1, fs_in.TexCoords);
+    diffuseColor = vec3(texDiffuse);
+    vec4 texSpecular = texture(tex_specular1, fs_in.TexCoords);
+    specularColor = vec3(texSpecular);
+
 
     // ambient
     float ambientStrength = 0.2;

@@ -7,11 +7,12 @@
 #include "PaleRenderer/ECS/CompSkybox.h"
 
 #include "PaleRenderer/Core/Application.h"
+#include "PaleRenderer/Core/PathManager.h"
 #include "PaleRenderer/Mesh/Mesh.h"
+#include "PaleRenderer/Mesh/Sphere.h"
 #include "PaleRenderer/Material/Material.h"
 #include "PaleRenderer/OpenGL/FrameBufferOpenGL.h"
 
-#include "PaleRenderer/Mesh/Sphere.h"
 
 namespace PaleRdr
 {
@@ -84,11 +85,11 @@ namespace PaleRdr
                 pShader->setUniform("uProjection", uProject);
                 pShader->setUniform("uModel", uModel);
 
-                glBindVertexArray(pMesh->getVAO());
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_CUBE_MAP, pTexture->getID());
                 pShader->setUniform("skybox", static_cast<int>(0));
-                glDepthFunc(GL_LEQUAL); // Default value of depth buffer is 1.0f
+                glBindVertexArray(pMesh->getVAO());
+                glDepthFunc(GL_LEQUAL);
                 glDrawElements(pMesh->getElementType(), pMesh->getIndiceSize(), GL_UNSIGNED_INT, 0);
                 glDepthFunc(GL_LESS);
                 glBindVertexArray(0);
@@ -112,6 +113,7 @@ namespace PaleRdr
     {
         for (auto& id : m_Entities)
         {
+            auto* name = m_Registry.try_get<PaleRdr::SCompName>(id);
             auto* trans = m_Registry.try_get<PaleRdr::SCompTransform>(id);
             PALE_RDR_ASSERT(trans, "Entities must have a Transform!");
             auto* meshrdr = m_Registry.try_get<PaleRdr::SCompMeshRenderer>(id);
@@ -139,16 +141,26 @@ namespace PaleRdr
                 pShader->setUniform("uNormalMatrix", glm::transpose(glm::inverse(glm::mat3(uModel))));
 
                 int numTex = 0;
-                auto bindTextures = [&numTex, &pShader, &pMaterial](ETexture vType, const std::string& uniformName) {
+                auto bindTextures = [&numTex, &pShader, &pMaterial](ETexture vType, const std::string& vUniformName) {
                         if (pMaterial->hasTextureOfType(vType))
                         {
                             auto& textures = pMaterial->fetchTextureOfType(vType);
                             for (size_t i = 0; i < textures.size(); ++i)
                             {
                                 glActiveTexture(GL_TEXTURE0 + numTex);
-                                std::string name = std::format("{}{}", uniformName, i + 1);
+                                std::string name = std::format("{}{}", vUniformName, i + 1);
                                 pShader->setUniform(name, numTex++);
-                                glBindTexture(GL_TEXTURE_2D, textures[i]->getID());
+                                if (vType == ETexture::Skybox ||
+                                    vType == ETexture::IrradianceMap ||
+                                    vType == ETexture::PreFilterMap
+                                    )
+                                {
+                                    glBindTexture(GL_TEXTURE_CUBE_MAP, textures[i]->getID());
+                                }
+                                else
+                                {
+                                    glBindTexture(GL_TEXTURE_2D, textures[i]->getID());
+                                }
                             }
                         }
                     };
@@ -161,6 +173,9 @@ namespace PaleRdr
                 bindTextures(ETexture::Roughness, "tex_roughness");
                 bindTextures(ETexture::AO, "tex_ao");
                 bindTextures(ETexture::Skybox, "tex_skybox");
+                bindTextures(ETexture::IrradianceMap, "tex_irradiance");
+                bindTextures(ETexture::PreFilterMap, "tex_prefilter");
+                bindTextures(ETexture::BRDFLUT, "tex_brdflut");
 
                 glActiveTexture(GL_TEXTURE0);
 

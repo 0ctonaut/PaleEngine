@@ -13,26 +13,22 @@ namespace PaleRdr
 		Roughness,
 		AO,
 
-		Skybox
+		Skybox,
+		Equirectangular,
+		IrradianceMap,
+		PreFilterMap,
+		BRDFLUT
 	};
-
-	//enum class PALE_API ESkyboxFace
-	//{
-	//	POSITIVE_X,
-	//	NEGATIVE_X,
-	//	POSITIVE_Y,
-	//	NEGATIVE_Y,
-	//	POSITIVE_Z,
-	//	NEGATIVE_Z
-	//};
 
 	class PALE_API ITexture
 	{
 	public:
 		ETexture Type;
 		virtual unsigned int getID() const = 0;
-		static std::shared_ptr<ITexture> Create(const std::string& vPath, ETexture vType);
-		static std::shared_ptr<ITexture> Create(const std::filesystem::path& vPath, ETexture vType);
+		static std::shared_ptr<ITexture> Create(const std::filesystem::path& vPath, ETexture vType, unsigned int vInternalFormat = 0);
 		static std::shared_ptr<ITexture> Create(const std::vector<std::filesystem::path>& vFaces, ETexture vType);
+		static std::shared_ptr<ITexture> CreateIrradianceMap(std::shared_ptr<ITexture>& vSkybox, unsigned int vWidth, unsigned int vHeight, unsigned int vInternalFormat = 0);
+		static std::shared_ptr<ITexture> CreatePreFilterMap(std::shared_ptr<ITexture>& vSkybox, unsigned int vWidth, unsigned int vHeight, unsigned int vInternalFormat = 0);
+		static std::shared_ptr<ITexture> CreateBRDFLUT(unsigned int vWidth, unsigned int vHeight);
 	};
 }

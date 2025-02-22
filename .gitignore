@@ -365,4 +365,5 @@ FodyWeavers.xsd
 # custom
 build/
 .vscode/
-Assets/Models
+Assets/objects
+Assets/textures

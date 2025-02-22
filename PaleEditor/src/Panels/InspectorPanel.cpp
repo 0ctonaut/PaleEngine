@@ -17,6 +17,7 @@ namespace PaleUI
         __renderUICompTrans(vRegistry, m_SelectionEntity);
 		__renderUICompLight(vRegistry, m_SelectionEntity);
 		__renderUICompMeshRdr(vRegistry, m_SelectionEntity);
+		__renderUICompSkybox(vRegistry, m_SelectionEntity);
         ImGui::End();
     }
 
@@ -76,33 +77,33 @@ namespace PaleUI
 					float previewImageSize = 256.0f;
 					for (auto it = meshRdr->_Materials.begin(); it != meshRdr->_Materials.end(); ++it)
 					{
-						auto DisplayTextureButton = [&previewImageSize](const std::string& label, unsigned int textureID, float imageSize) {
-							if (ImGui::ImageButton(label.c_str(), textureID, ImVec2(imageSize, imageSize))) {
-								ImGui::OpenPopup((label + "Preview").c_str());
-							}
-							ImGui::SameLine();
-							ImGui::Text(label.c_str());
-
-							if (ImGui::BeginPopup((label + "Preview").c_str())) {
-								ImGui::Text((label + " Preview").c_str());
-								ImGui::Image(textureID, ImVec2(previewImageSize, previewImageSize));
-								ImGui::EndPopup();
-							}
-						};
-
 						if(it->second->hasTextureOfType(PaleRdr::ETexture::Albedo))
-							DisplayTextureButton("Albedo", it->second->fetchTextureOfType(PaleRdr::ETexture::Albedo)[0]->getID(), imageSize);
+							__drawDisplayTextureButton("Albedo", it->second->fetchTextureOfType(PaleRdr::ETexture::Albedo)[0]->getID(), imageSize, previewImageSize);
 						if (it->second->hasTextureOfType(PaleRdr::ETexture::Normal))
-							DisplayTextureButton("Normal", it->second->fetchTextureOfType(PaleRdr::ETexture::Normal)[0]->getID(), imageSize);
+							__drawDisplayTextureButton("Normal", it->second->fetchTextureOfType(PaleRdr::ETexture::Normal)[0]->getID(), imageSize, previewImageSize);
 						if (it->second->hasTextureOfType(PaleRdr::ETexture::Metallic))
-							DisplayTextureButton("Metallic", it->second->fetchTextureOfType(PaleRdr::ETexture::Metallic)[0]->getID(), imageSize);
+							__drawDisplayTextureButton("Metallic", it->second->fetchTextureOfType(PaleRdr::ETexture::Metallic)[0]->getID(), imageSize, previewImageSize);
 						if (it->second->hasTextureOfType(PaleRdr::ETexture::Roughness))
-							DisplayTextureButton("Roughness", it->second->fetchTextureOfType(PaleRdr::ETexture::Roughness)[0]->getID(), imageSize);
+							__drawDisplayTextureButton("Roughness", it->second->fetchTextureOfType(PaleRdr::ETexture::Roughness)[0]->getID(), imageSize, previewImageSize);
 						if (it->second->hasTextureOfType(PaleRdr::ETexture::AO))
-							DisplayTextureButton("AO", it->second->fetchTextureOfType(PaleRdr::ETexture::AO)[0]->getID(), imageSize);
+							__drawDisplayTextureButton("AO", it->second->fetchTextureOfType(PaleRdr::ETexture::AO)[0]->getID(), imageSize, previewImageSize);
 					}
 					ImGui::TreePop();
 				}
+
+				ImGui::TreePop();
+			}
+			ImGui::Separator();
+		}
+	}
+
+	void CInspectorPanel::__renderUICompSkybox(entt::registry& vRegistry, const entt::entity& vId)
+	{
+		if (auto* skybox = vRegistry.try_get<PaleRdr::SCompSkybox>(vId))
+		{
+			if (ImGui::TreeNodeEx("Skybox", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				__drawDisplayTextureButton("brdf LUT", skybox->_BRDFLUT->getID());
 
 				ImGui::TreePop();
 			}
@@ -173,5 +174,19 @@ namespace PaleUI
 		ImGui::Columns(1);
 		ImGui::PopStyleVar();
 		ImGui::PopID();
+	}
+	void CInspectorPanel::__drawDisplayTextureButton(const std::string& label, unsigned int textureID, float vImageButtonSize, float vPreviewImageSize)
+	{
+		if (ImGui::ImageButton(label.c_str(), textureID, ImVec2(vImageButtonSize, vImageButtonSize))) {
+			ImGui::OpenPopup((label + "Preview").c_str());
+		}
+		ImGui::SameLine();
+		ImGui::Text(label.c_str());
+
+		if (ImGui::BeginPopup((label + "Preview").c_str())) {
+			ImGui::Text((label + " Preview").c_str());
+			ImGui::Image(textureID, ImVec2(vPreviewImageSize, vPreviewImageSize));
+			ImGui::EndPopup();
+		}
 	}
 }

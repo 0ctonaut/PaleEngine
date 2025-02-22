@@ -15,14 +15,14 @@ cd PaleEngine
 cmake -S . -Bbuild
 ```
 
-Here are some model files:
+Here are some assets:
 
-+ [skybox](https://learnopengl-cn.github.io/data/skybox.rar)
-+ [backpack](https://learnopengl.com/data/models/backpack.zip)
++ [LearnOpenGL](https://github.com/JoeyDeVries/LearnOpenGL/tree/master/resources)
++ https://artisaverb.info/PBT.html
 
-## Interface snapshot 250218
+## Interface snapshot 250222
 
-![](github/interface250218.png)
+![](github/interface250222.png)
 
 
 ## TODO List
@@ -30,8 +30,8 @@ Here are some model files:
 + rendering
   + [X] blinn-phong
   + [X] PBR
-  + [ ] IBL
-    + [X] skybox
+    + [X] IBL
+      + [X] skybox
   + [ ] OIT
   + [ ] PCF & PCSS
   + [ ] Deferred shading
@@ -41,10 +41,20 @@ Here are some model files:
   + [ ] log console
   + [ ] Assets brower
   + [ ] ImGUI gizmo
+  + Hierachy
+    + [ ] KEY F quick locate
+    + [ ] drag, delete
+  + Inspector
+    + [ ] enable/disable
+    + [ ] Right click menu(add/delete component)
+    + [ ] quick choose texture window 
 
 + Profiler
   + [ ] performance
   + [ ] memory leak
+
++ Optimization
+  + [ ] assets reloading cache for textures, meshes...
 
 + Other
   + [ ] Input event system

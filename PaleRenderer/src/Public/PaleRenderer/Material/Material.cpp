@@ -33,6 +33,10 @@ namespace PaleRdr
         {
             m_TextureMap[vType] = std::vector<std::shared_ptr<ITexture>>();
         }
+        if (vType != vTexture->Type)
+        {
+            PALE_RDR_WARN("You are adding texture of type {} as type {}", static_cast<int>(vTexture->Type), static_cast<int>(vType));
+        }
         m_TextureMap[vType].push_back(vTexture);
         return true;
     }

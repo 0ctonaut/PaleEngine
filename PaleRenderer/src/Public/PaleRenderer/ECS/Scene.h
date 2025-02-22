@@ -31,7 +31,11 @@ namespace PaleRdr
 
         inline PaleRdr::CCamera* fetchSceneCam() { return m_pSceneCamera; }
 
+        void setupSkybox();
+
     private:
+        void __OnSetupSkybox();
+
         void __BeforeRender();
         void __OnRenderSkybox();
         void __OnRenderLight();

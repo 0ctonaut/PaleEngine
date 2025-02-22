@@ -1,4 +1,4 @@
-#version 330 core
+#version 450 core
 out vec4 FragColor;
 
 in VS_OUT {
@@ -24,7 +24,7 @@ void main()
   	vec3 result = vec3(0.0);
     for(int i = 0; i < 4; ++i) 
     {
-        vec3 lightColor = uLightColor[i] * uLightIntensity[i] / 200;
+        vec3 lightColor = uLightColor[i] * uLightIntensity[i] / 100;
         vec3 ambient = ambientStrength * lightColor;
         // diffuse 
         vec3 lightDir = normalize(uLightPos[i] - fs_in.FragPos);
@@ -40,6 +40,8 @@ void main()
         vec3 specular = specularStrength * spec * lightColor * specularColor;
         result += (ambient + diffuse + specular);
     }
-        
-    FragColor = vec4(result, 1.0);
+    const float gamma = 2.2;
+    vec3 mapped = result / (result + vec3(1.0));
+    mapped = pow(mapped, vec3(1.0 / gamma));
+    FragColor = vec4(mapped, 1.0);
 }
